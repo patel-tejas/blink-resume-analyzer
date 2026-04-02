@@ -18,14 +18,14 @@ const STEP_ICONS: Record<string, React.ElementType> = {
 
 const STATUS_STYLES: Record<string, { dot: string; text: string; connector: string }> = {
   pending: {
-    dot: "bg-white/10 border-white/10",
+    dot: "bg-white border-slate-200",
     text: "var(--text-muted)",
-    connector: "bg-white/6",
+    connector: "bg-slate-100", // Visible grey line for pending
   },
   active: {
     dot: "border-[var(--accent)]",
     text: "var(--accent-light)",
-    connector: "bg-white/6",
+    connector: "bg-slate-100", // Still grey until done
   },
   done: {
     dot: "bg-[var(--success-dim)] border-[var(--success)]",
@@ -38,9 +38,9 @@ const STATUS_STYLES: Record<string, { dot: string; text: string; connector: stri
     connector: "bg-[var(--error)]",
   },
   skipped: {
-    dot: "bg-white/5 border-white/10",
+    dot: "bg-white border-slate-100",
     text: "var(--text-muted)",
-    connector: "bg-white/10",
+    connector: "bg-slate-100",
   },
 };
 
@@ -74,16 +74,23 @@ export default function ProgressStepper({ steps }: ProgressStepperProps) {
 
               {/* Step circle */}
               <motion.div
-                className={`relative z-10 w-10 h-10 rounded-full border-2 flex items-center justify-center ${styles.dot} ${
+                className={`relative z-20 w-10 h-10 rounded-full border-2 flex items-center justify-center ${styles.dot} ${
                   step.status === "active" ? "pulse-active" : ""
                 }`}
                 style={{
-                  background:
-                    step.status === "active" ? "var(--accent-dim)" : undefined,
+                  backgroundColor: "#ffffff", // Pure solid white mask
+                  boxShadow: step.status === "active" ? "0 0 0 2px var(--accent-dim)" : "none",
                 }}
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: i * 0.1 }}
+                initial={{ scale: 0.95, opacity: 1 }}
+                animate={{ 
+                  scale: step.status === "active" ? 1.1 : 1,
+                  opacity: 1 
+                }}
+                transition={{ 
+                  type: "spring",
+                  stiffness: 300,
+                  damping: 20
+                }}
               >
                 <Icon
                   size={18}
@@ -95,7 +102,7 @@ export default function ProgressStepper({ steps }: ProgressStepperProps) {
                         ? "var(--success)"
                         : step.status === "error"
                         ? "var(--error)"
-                        : "var(--text-muted)",
+                        : "#cbd5e1", // Slightly darker pending grey
                   }}
                 />
               </motion.div>
