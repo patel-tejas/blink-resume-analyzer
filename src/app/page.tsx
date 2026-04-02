@@ -156,8 +156,8 @@ export default function Home() {
         backgroundRepeat: 'no-repeat'
       }}
     >
-      {/* Soft gradient overlay to make clouds fade into white at the bottom where we drop content */}
-      <div className="absolute inset-x-0 bottom-0 h-[40vh] bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none z-0"></div>
+      {/* Deep gradient overlay to fade clouds perfectly into background color */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent from-[20%] via-[#f8f9fa]/80 via-[50%] to-[#f8f9fa] to-[65%] pointer-events-none z-0"></div>
 
       <div className="relative z-10 w-full max-w-4xl mx-auto px-6 py-12 flex flex-col items-center mt-20 md:mt-32">
 
@@ -182,9 +182,9 @@ export default function Home() {
           </div>
         </motion.div>
 
-        {/* Upload zone matching the light theme */}
+        {/* Invisible container for FileUpload */}
         <motion.div
-          className="w-full max-w-sm relative z-10 bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl p-1.5 border border-blue-100"
+          className="relative z-10 w-full flex justify-center mt-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.6 }}
@@ -232,14 +232,7 @@ export default function Home() {
           )}
         </AnimatePresence>
 
-        <motion.p
-          className="mt-6 text-xs font-medium text-gray-400"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-        >
-          *no signup required
-        </motion.p>
+
       </div>
 
     </main>

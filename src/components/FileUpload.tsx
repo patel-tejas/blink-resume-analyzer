@@ -58,16 +58,15 @@ export default function FileUpload({ onFileSelect, isProcessing }: FileUploadPro
   };
 
   return (
-    <div className="w-full max-w-sm mx-auto">
+    <div className="w-full max-w-sm mx-auto text-center flex flex-col items-center">
       <motion.div
         {...(getRootProps() as any)}
-        className={`relative cursor-pointer rounded-2xl p-6 text-center transition-all duration-300 ${
-          isProcessing
-            ? "opacity-50 cursor-not-allowed border-2 border-dashed border-white/5"
+        className={`relative cursor-pointer transition-all duration-300 w-full rounded-2xl p-6 border-2 border-dashed ${isProcessing
+            ? "opacity-50 cursor-not-allowed border-slate-200"
             : isDragActive
-            ? "dropzone-active"
-            : "dropzone-idle"
-        }`}
+              ? "border-blue-400 bg-white/80 shadow-lg"
+              : "border-slate-300 bg-white/40 hover:bg-white/80 hover:border-slate-400 backdrop-blur-sm"
+          }`}
         whileHover={!isProcessing ? { scale: 1.01 } : undefined}
         whileTap={!isProcessing ? { scale: 0.99 } : undefined}
       >
@@ -80,14 +79,14 @@ export default function FileUpload({ onFileSelect, isProcessing }: FileUploadPro
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="flex items-center justify-center gap-4"
+              className="flex items-center justify-center gap-4 bg-white border border-slate-200 shadow-sm rounded-full px-5 py-2.5 mx-auto w-max"
             >
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center"
+              <div className="w-8 h-8 rounded-full flex items-center justify-center"
                 style={{ background: "var(--accent-dim)" }}>
-                <FileText size={22} style={{ color: "var(--accent)" }} />
+                <FileText size={16} style={{ color: "var(--accent)" }} />
               </div>
-              <div className="text-left">
-                <p className="text-sm font-medium text-slate-900">
+              <div className="text-left flex-1 min-w-[120px]">
+                <p className="text-sm font-medium text-slate-900 truncate">
                   {selectedFile.name}
                 </p>
                 <p className="text-xs text-slate-600">
@@ -97,7 +96,7 @@ export default function FileUpload({ onFileSelect, isProcessing }: FileUploadPro
               {!isProcessing && (
                 <button
                   onClick={removeFile}
-                  className="w-8 h-8 rounded-full flex items-center justify-center transition-colors hover:bg-white/10"
+                  className="w-8 h-8 rounded-full flex items-center justify-center transition-colors hover:bg-slate-100"
                 >
                   <X size={16} style={{ color: "var(--text-muted)" }} />
                 </button>
@@ -109,27 +108,20 @@ export default function FileUpload({ onFileSelect, isProcessing }: FileUploadPro
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
+              className="flex flex-col items-center justify-center"
             >
-              <motion.div
-                className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5"
-                style={{ background: "var(--accent-dim)" }}
-                animate={isDragActive ? { scale: 1.1, rotate: 5 } : { scale: 1, rotate: 0 }}
-              >
-                <Upload
-                  size={26}
-                  style={{ color: isDragActive ? "var(--accent-light)" : "var(--accent)" }}
-                />
-              </motion.div>
-              <p className="text-base font-medium mb-1 text-slate-900">
-                {isDragActive ? "Drop your resume here" : "Drop your resume PDF"}
-              </p>
-              <p className="text-sm text-slate-600">
-                or click to browse · PDF only · max 5MB
+              <div className={`inline-flex items-center gap-2.5 px-5 py-2.5 rounded-xl bg-white border border-slate-200 shadow-sm text-slate-800 font-semibold transition-colors ${isDragActive ? 'border-blue-400 shadow-md text-blue-600' : 'hover:border-slate-300 hover:shadow-md'}`}>
+                <Upload size={16} className={isDragActive ? 'text-blue-500' : 'text-slate-600'} />
+                <span className="text-sm">Upload Resume</span>
+              </div>
+              <p className="mt-3 text-xs text-slate-500 font-medium">
+                or drag & drop PDF here
               </p>
             </motion.div>
           )}
         </AnimatePresence>
       </motion.div>
+      {/* <p className="mt-4 text-xs font-medium text-slate-500">*no signup required</p> */}
 
       <AnimatePresence>
         {error && (
