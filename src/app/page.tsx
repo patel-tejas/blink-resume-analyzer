@@ -169,11 +169,11 @@ export default function Home() {
         >
           <div className="text-center inline-block drop-shadow-md">
             <h1
-              className="text-4xl md:text-5xl lg:text-6xl leading-tight text-slate-900 font-bold tracking-tight"
-              style={{ fontFamily: "var(--font-serif)" }}
+              className="text-4xl md:text-5xl lg:text-[4.5rem] leading-[1.05] text-slate-800 tracking-tight font-normal"
+              style={{ fontFamily: "var(--font-instrument)" }}
             >
               What does your resume <br />
-              <span className="text-orange-800">actually</span> say about you?
+              <span className="text-blue-600 italic font-normal">actually</span> say about you?
             </h1>
 
             <p className="mt-5 text-base md:text-lg text-slate-800 font-medium max-w-lg mx-auto drop-shadow-sm">

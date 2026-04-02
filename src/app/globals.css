@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
 :root {
@@ -26,7 +25,8 @@
   --warning-dim: rgba(245, 158, 11, 0.1);
 
   --font-serif: 'DM Serif Display', Georgia, serif;
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-serif-art: var(--font-instrument, 'Instrument Serif', serif);
+  --font-sans: var(--font-sans, 'Inter', sans-serif);
 
   --radius-sm: 8px;
   --radius-md: 12px;

@@ -1,5 +1,18 @@
 import type { Metadata } from "next";
+import { Inter, Instrument_Serif } from "next/font/google";
 import "./globals.css";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans",
+});
+
+const instrumentSerif = Instrument_Serif({
+  weight: ["400"],
+  subsets: ["latin"],
+  style: ["normal", "italic"],
+  variable: "--font-instrument",
+});
 
 export const metadata: Metadata = {
   title: "Blink — AI Resume Intelligence",
@@ -14,8 +27,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full antialiased">
-      <body className="min-h-full flex flex-col relative z-10">{children}</body>
+    <html lang="en" className={`h-full antialiased ${inter.variable} ${instrumentSerif.variable}`}>
+      <body className="min-h-full flex flex-col relative z-10 font-sans">
+        {children}
+      </body>
     </html>
   );
 }
