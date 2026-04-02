@@ -36,8 +36,17 @@ export default function Home() {
       let parseData: ParseResponse | null = null;
       let githubData: GitHubData | null = null;
       let insights: AIInsights | null = null;
+      let pdfDataUrl: string | null = null;
 
       try {
+        // Convert PDF to base64 data URL for dashboard viewing
+        pdfDataUrl = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+
         // Step 1: Upload
         updateStep("upload", { status: "active", detail: "Uploading..." });
         const formData = new FormData();
@@ -126,6 +135,7 @@ export default function Home() {
           parseData,
           githubData,
           insights,
+          pdfDataUrl,
           timestamp: Date.now(),
         };
 

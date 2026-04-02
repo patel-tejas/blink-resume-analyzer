@@ -33,6 +33,47 @@ export interface SkillCategory {
   level: number; // 0-100
 }
 
+// ── Deep Analysis Types ──
+
+export interface ContactInfo {
+  name: string;
+  email: string | null;
+  phone: string | null;
+  location: string | null;
+}
+
+export interface Education {
+  institution: string;
+  degree: string;
+  year: string;
+  gpa: string | null;
+  isRenowned: boolean;
+  highlight: string | null;
+}
+
+export interface Experience {
+  company: string;
+  role: string;
+  duration: string;
+  highlights: string[];
+  isNotable: boolean;
+  notableReason: string | null;
+}
+
+export interface Project {
+  name: string;
+  description: string;
+  techStack: string[];
+  isImpressive: boolean;
+  impressiveReason: string | null;
+}
+
+export interface Achievement {
+  title: string;
+  isExceptional: boolean;
+  exceptionalReason: string | null;
+}
+
 export interface AIInsights {
   score: number; // 0-100
   skills: string[];
@@ -41,6 +82,19 @@ export interface AIInsights {
   redFlags: string[];
   ceoSummary: string;
   skillCategories: SkillCategory[];
+
+  // Deep analysis fields
+  contactInfo?: ContactInfo;
+  education?: Education[];
+  experience?: Experience[];
+  projects?: Project[];
+  achievements?: Achievement[];
+  certifications?: string[];
+  atsScore?: number;
+  atsIssues?: string[];
+  formatScore?: number;
+  formatIssues?: string[];
+
   error?: boolean;
   message?: string;
 }
@@ -50,6 +104,7 @@ export interface ResumeResult {
   parseData: ParseResponse;
   githubData: GitHubData | null;
   insights: AIInsights | null;
+  pdfDataUrl: string | null;
   timestamp: number;
 }
 

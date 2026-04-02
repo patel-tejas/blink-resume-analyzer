@@ -9,18 +9,32 @@ import {
   Target,
   TrendingUp,
   AlertTriangle,
-  Briefcase,
   FileText,
   ChevronDown,
-  Globe,
-  Code2,
-  Link,
+  X,
+  Eye,
+  GraduationCap,
+  Briefcase,
+  FolderKanban,
+  Trophy,
+  Award,
+  ShieldCheck,
+  FileCheck,
+  MapPin,
+  Mail,
+  Phone,
+  User,
 } from "lucide-react";
 import ScoreBadge from "@/components/ScoreBadge";
 import SkillsRadar from "@/components/SkillsRadar";
 import InsightCard from "@/components/InsightCard";
 import GitHubCard from "@/components/GitHubCard";
-import type { ResumeResult } from "@/lib/types";
+import {
+  GitHubIcon,
+  LinkedInIcon,
+  getLinkIcon,
+} from "@/components/SocialIcons";
+import type { ResumeResult, Education, Experience, Project, Achievement } from "@/lib/types";
 
 export default function DashboardPage({
   params,
@@ -31,7 +45,8 @@ export default function DashboardPage({
   const router = useRouter();
   const [result, setResult] = useState<ResumeResult | null>(null);
   const [notFound, setNotFound] = useState(false);
-  const [showRawText, setShowRawText] = useState(false);
+  const [showPdfMobile, setShowPdfMobile] = useState(false);
+  const [showPdf, setShowPdf] = useState(true);
 
   useEffect(() => {
     const stored = sessionStorage.getItem(id);
@@ -60,10 +75,7 @@ export default function DashboardPage({
           >
             <FileText size={28} style={{ color: "var(--accent)" }} />
           </div>
-          <h1
-            className="text-3xl mb-3"
-            style={{ fontFamily: "var(--font-serif)" }}
-          >
+          <h1 className="text-3xl mb-3" style={{ fontFamily: "var(--font-serif)" }}>
             Session Expired
           </h1>
           <p className="text-sm mb-8" style={{ color: "var(--text-secondary)" }}>
@@ -74,14 +86,8 @@ export default function DashboardPage({
             className="px-6 py-3 rounded-xl text-sm font-medium transition-all"
             style={{
               background: "var(--accent-dim)",
-              color: "var(--accent-light)",
-              border: "1px solid rgba(201, 165, 90, 0.2)",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "rgba(201, 165, 90, 0.25)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "var(--accent-dim)";
+              color: "var(--accent)",
+              border: "1px solid rgba(37, 99, 235, 0.2)",
             }}
           >
             Upload Resume
@@ -95,334 +101,569 @@ export default function DashboardPage({
     return (
       <main className="flex-1 flex items-center justify-center">
         <div className="flex items-center gap-3">
-          <div
-            className="w-2 h-2 rounded-full animate-pulse"
-            style={{ background: "var(--accent)" }}
-          />
-          <span className="text-sm" style={{ color: "var(--text-muted)" }}>
-            Loading results...
-          </span>
+          <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: "var(--accent)" }} />
+          <span className="text-sm" style={{ color: "var(--text-muted)" }}>Loading results...</span>
         </div>
       </main>
     );
   }
 
-  const { parseData, githubData, insights } = result;
+  const { parseData, githubData, insights, pdfDataUrl } = result;
 
   return (
-    <main className="min-h-screen relative">
+    <main className="h-screen flex flex-col overflow-hidden relative">
       {/* Background glow */}
       <div
         className="fixed top-0 right-0 w-[500px] h-[500px] pointer-events-none"
         style={{
-          background:
-            "radial-gradient(circle at center, rgba(201, 165, 90, 0.04) 0%, transparent 70%)",
+          background: "radial-gradient(circle at center, rgba(37, 99, 235, 0.03) 0%, transparent 70%)",
         }}
       />
 
-      {/* Header */}
-      <header className="sticky top-0 z-50 px-6 py-4" style={{ background: "rgba(255, 255, 255, 0.8)", backdropFilter: "blur(20px)", borderBottom: "1px solid var(--border-subtle)" }}>
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <button
-            onClick={() => router.push("/")}
-            className="flex items-center gap-2 text-sm transition-colors"
-            style={{ color: "var(--text-muted)" }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.color = "var(--text-primary)")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.color = "var(--text-muted)")
-            }
+      {/* ── Mobile PDF Modal ── */}
+      <AnimatePresence>
+        {showPdfMobile && pdfDataUrl && (
+          <motion.div
+            className="fixed inset-0 z-100 md:hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
           >
-            <ArrowLeft size={16} />
-            New Analysis
-          </button>
-
-          <div className="flex items-center gap-3">
-            {parseData.linkedinUsername && (
-              <a
-                href={`https://linkedin.com/in/${parseData.linkedinUsername}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
-                style={{ background: "rgba(0,0,0,0.05)" }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.background = "rgba(0,0,0,0.08)")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.background = "rgba(0,0,0,0.05)")
-                }
-              >
-                <Globe size={14} style={{ color: "var(--text-secondary)" }} />
-              </a>
-            )}
-            {parseData.githubUsername && (
-              <a
-                href={`https://github.com/${parseData.githubUsername}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
-                style={{ background: "rgba(0,0,0,0.05)" }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.background = "rgba(0,0,0,0.08)")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.background = "rgba(0,0,0,0.05)")
-                }
-              >
-                <Code2 size={14} style={{ color: "var(--text-secondary)" }} />
-              </a>
-            )}
-          </div>
-        </div>
-      </header>
-
-      <div className="max-w-6xl mx-auto px-6 py-10">
-        {/* ── Hero Section: Score + Summary ── */}
-        <motion.section
-          className="flex flex-col md:flex-row items-center gap-10 mb-14"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          {insights && !insights.error && (
-            <div className="shrink-0">
-              <ScoreBadge score={insights.score} size={180} />
-            </div>
-          )}
-
-          <div className="flex-1 text-center md:text-left">
-            <h1
-              className="text-3xl md:text-4xl mb-3"
-              style={{ fontFamily: "var(--font-serif)" }}
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowPdfMobile(false)} />
+            <motion.div
+              className="absolute inset-4 top-12 bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+              initial={{ y: 40, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 40, opacity: 0 }}
             >
-              Resume Verdict
-            </h1>
-
-            {insights && !insights.error && (
-              <>
-                <div className="flex flex-wrap items-center gap-3 mb-4 justify-center md:justify-start">
-                  <span
-                    className="px-3 py-1 rounded-full text-xs font-medium"
-                    style={{
-                      background: "var(--accent-dim)",
-                      color: "var(--accent-light)",
-                      border: "1px solid rgba(201, 165, 90, 0.15)",
-                    }}
-                  >
-                    {insights.experienceLevel}
-                  </span>
-                  {parseData.githubUsername && (
-                    <span
-                      className="px-3 py-1 rounded-full text-xs font-medium"
-                      style={{
-                        background: "rgba(0,0,0,0.05)",
-                        color: "var(--text-secondary)",
-                      }}
-                    >
-                      @{parseData.githubUsername}
-                    </span>
-                  )}
-                  {parseData.linkedinUsername && (
-                    <span
-                      className="px-3 py-1 rounded-full text-xs font-medium"
-                      style={{
-                        background: "rgba(0,0,0,0.05)",
-                        color: "var(--text-secondary)",
-                      }}
-                    >
-                      in/{parseData.linkedinUsername}
-                    </span>
-                  )}
-                </div>
-
-                <p
-                  className="text-sm leading-relaxed max-w-xl"
-                  style={{ color: "var(--text-secondary)" }}
-                >
-                  {insights.ceoSummary}
-                </p>
-              </>
-            )}
-
-            {(!insights || insights.error) && (
-              <p className="text-sm" style={{ color: "var(--text-muted)" }}>
-                AI insights unavailable. Showing extracted data below.
-              </p>
-            )}
-          </div>
-        </motion.section>
-
-        <div className="gradient-line mb-14" />
-
-        {/* ── Skills Section ── */}
-        {insights && !insights.error && (
-          <section className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-            <InsightCard
-              icon={<Target size={18} style={{ color: "var(--accent)" }} />}
-              title="Skill Radar"
-              delay={0.1}
-              accent
-            >
-              <SkillsRadar categories={insights.skillCategories} />
-            </InsightCard>
-
-            <InsightCard
-              icon={<Sparkles size={18} style={{ color: "var(--accent)" }} />}
-              title="Detected Skills"
-              delay={0.2}
-            >
-              <div className="flex flex-wrap gap-2">
-                {insights.skills.map((skill) => (
-                  <span key={skill} className="tag-pill">
-                    {skill}
-                  </span>
-                ))}
+              <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+                <span className="text-sm font-medium text-gray-700">Resume PDF</span>
+                <button onClick={() => setShowPdfMobile(false)} className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-gray-100 transition-colors">
+                  <X size={16} className="text-gray-500" />
+                </button>
               </div>
-            </InsightCard>
-          </section>
+              <iframe src={pdfDataUrl ? `${pdfDataUrl}#view=FitH` : undefined} className="flex-1 w-full" title="Resume PDF" />
+            </motion.div>
+          </motion.div>
         )}
+      </AnimatePresence>
 
-        {/* ── Strengths & Red Flags ── */}
-        {insights && !insights.error && (
-          <section className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-            <InsightCard
-              icon={<TrendingUp size={18} style={{ color: "var(--success)" }} />}
-              title="Strengths"
-              delay={0.3}
-            >
-              <ul className="space-y-2.5">
-                {insights.strengths.map((s, i) => (
-                  <li key={i} className="flex items-start gap-2.5">
-                    <div
-                      className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0"
-                      style={{ background: "var(--success)" }}
-                    />
-                    <span
-                      className="text-sm leading-relaxed"
-                      style={{ color: "var(--text-secondary)" }}
-                    >
-                      {s}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </InsightCard>
+      {/* ── Split Panel Body ── */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* LEFT: Scrollable analysis */}
+        <div className="flex-1 overflow-y-auto analysis-scroll-panel">
+          <div className={`mx-auto px-6 py-8 ${showPdf && pdfDataUrl ? 'max-w-3xl' : 'max-w-5xl'}`}>
+            
+            {/* ── Top Action Bar (Sticky) ── */}
+            <div className="sticky top-0 z-20 pt-8 pb-4 mb-4 bg-white/80 backdrop-blur-md -mx-6 px-6 border-b border-gray-100 flex items-center justify-between">
+              <button
+                onClick={() => router.push("/")}
+                className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest transition-colors"
+                style={{ color: "var(--text-muted)" }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "var(--text-primary)")}
+                onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}
+              >
+                <ArrowLeft size={14} />
+                New Analysis
+              </button>
 
-            <InsightCard
-              icon={<AlertTriangle size={18} style={{ color: "var(--warning)" }} />}
-              title="Areas to Improve"
-              delay={0.4}
-            >
-              <ul className="space-y-2.5">
-                {insights.redFlags.map((r, i) => (
-                  <li key={i} className="flex items-start gap-2.5">
-                    <div
-                      className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0"
-                      style={{ background: "var(--warning)" }}
-                    />
-                    <span
-                      className="text-sm leading-relaxed"
-                      style={{ color: "var(--text-secondary)" }}
-                    >
-                      {r}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </InsightCard>
-          </section>
-        )}
+              <div className="flex items-center gap-2">
+                {/* Mobile PDF toggle */}
+                {pdfDataUrl && (
+                  <button
+                    onClick={() => setShowPdfMobile(!showPdfMobile)}
+                    className="md:hidden w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+                    style={{ background: "var(--accent-dim)" }}
+                  >
+                    <Eye size={14} style={{ color: "var(--accent)" }} />
+                  </button>
+                )}
 
-        {/* ── GitHub Card ── */}
-        {githubData && (
-          <section className="mb-10">
-            <InsightCard
-              icon={<Code2 size={18} style={{ color: "var(--text-secondary)" }} />}
-              title="GitHub Profile"
-              delay={0.5}
-            >
-              <GitHubCard data={githubData} />
-            </InsightCard>
-          </section>
-        )}
+                {/* Desktop PDF toggle (when hidden) */}
+                {pdfDataUrl && !showPdf && (
+                  <button
+                    onClick={() => setShowPdf(true)}
+                    className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all hover:scale-105"
+                    style={{ background: "var(--accent-dim)", color: "var(--accent)" }}
+                  >
+                    <Eye size={13} />
+                    Show PDF
+                  </button>
+                )}
 
-        {/* ── Raw Text ── */}
-        <section className="mb-20">
-          <InsightCard
-            icon={<Briefcase size={18} style={{ color: "var(--text-muted)" }} />}
-            title="Extracted Text"
-            delay={0.6}
-          >
-            <button
-              onClick={() => setShowRawText(!showRawText)}
-              className="flex items-center gap-2 text-sm transition-colors mb-3"
-              style={{ color: "var(--text-muted)" }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.color = "var(--text-primary)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.color = "var(--text-muted)")
-              }
-            >
-              <ChevronDown
-                size={16}
-                className="transition-transform"
-                style={{
-                  transform: showRawText ? "rotate(180deg)" : "rotate(0deg)",
-                }}
-              />
-              {showRawText ? "Hide" : "Show"} extracted text
-            </button>
+                {(parseData.linkedinUsername || parseData.githubUsername) && (
+                  <div className="h-4 w-px bg-gray-200 mx-1 hidden sm:block" />
+                )}
 
-            <AnimatePresence>
-              {showRawText && (
-                <motion.pre
-                  className="text-xs leading-relaxed whitespace-pre-wrap p-4 rounded-xl overflow-auto max-h-96"
-                  style={{
-                    color: "var(--text-secondary)",
-                    background: "rgba(0,0,0,0.02)",
-                    border: "1px solid var(--border-subtle)",
-                  }}
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  {parseData.text}
-                </motion.pre>
-              )}
-            </AnimatePresence>
-          </InsightCard>
-        </section>
-
-        {/* ── Extracted Links ── */}
-        {parseData.portfolioLinks && parseData.portfolioLinks.length > 0 && (
-          <section className="mb-20">
-            <InsightCard
-              icon={<Link size={18} style={{ color: "var(--text-muted)" }} />}
-              title="Extracted Links"
-              delay={0.7}
-            >
-              <div className="flex flex-col gap-3">
-                {parseData.portfolioLinks.map((link, idx) => (
+                {parseData.linkedinUsername && (
                   <a
-                    key={idx}
-                    href={link}
+                    href={`https://linkedin.com/in/${parseData.linkedinUsername}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm font-medium transition-colors p-3 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-100 flex items-center gap-2"
-                    style={{ color: "var(--accent)" }}
+                    className="flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg transition-all hover:bg-[rgba(10,102,194,0.08)] bg-[rgba(10,102,194,0.03)]"
+                    style={{ color: "#0A66C2" }}
                   >
-                    <Link size={14} className="shrink-0" />
-                    <span className="truncate">{link}</span>
+                    <LinkedInIcon size={14} color="#0A66C2" />
+                    <span className="hidden sm:inline">LinkedIn</span>
                   </a>
-                ))}
+                )}
+                {parseData.githubUsername && (
+                  <a
+                    href={`https://github.com/${parseData.githubUsername}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg transition-all hover:bg-[rgba(0,0,0,0.05)] bg-[rgba(0,0,0,0.02)]"
+                    style={{ color: "#333" }}
+                  >
+                    <GitHubIcon size={14} color="#333" />
+                    <span className="hidden sm:inline">GitHub</span>
+                  </a>
+                )}
               </div>
-            </InsightCard>
-          </section>
+            </div>
+
+            {/* ── Contact Info + Score Hero ── */}
+            <motion.section
+              className="mb-8"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              {/* Contact bar */}
+              {insights?.contactInfo && (
+                <div className="flex flex-wrap items-center gap-4 mb-6 pb-4" style={{ borderBottom: "1px solid var(--border-subtle)" }}>
+                  <div className="flex items-center gap-2">
+                    <User size={14} style={{ color: "var(--accent)" }} />
+                    <span className="text-lg font-semibold" style={{ color: "var(--text-primary)" }}>
+                      {insights.contactInfo.name}
+                    </span>
+                  </div>
+                  {insights.contactInfo.email && (
+                    <div className="flex items-center gap-1.5">
+                      <Mail size={12} style={{ color: "var(--text-muted)" }} />
+                      <span className="text-xs" style={{ color: "var(--text-secondary)" }}>{insights.contactInfo.email}</span>
+                    </div>
+                  )}
+                  {insights.contactInfo.phone && (
+                    <div className="flex items-center gap-1.5">
+                      <Phone size={12} style={{ color: "var(--text-muted)" }} />
+                      <span className="text-xs" style={{ color: "var(--text-secondary)" }}>{insights.contactInfo.phone}</span>
+                    </div>
+                  )}
+                  {insights.contactInfo.location && (
+                    <div className="flex items-center gap-1.5">
+                      <MapPin size={12} style={{ color: "var(--text-muted)" }} />
+                      <span className="text-xs" style={{ color: "var(--text-secondary)" }}>{insights.contactInfo.location}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Score + Summary row */}
+              <div className="flex flex-col sm:flex-row items-center gap-8">
+                {insights && !insights.error && (
+                  <div className="shrink-0">
+                    <ScoreBadge score={insights.score} size={150} />
+                  </div>
+                )}
+                <div className="flex-1 text-center sm:text-left">
+                  <h1 className="text-2xl sm:text-3xl mb-3" style={{ fontFamily: "var(--font-serif)" }}>
+                    Resume Verdict
+                  </h1>
+                  {insights && !insights.error && (
+                    <>
+                      <div className="flex flex-wrap items-center gap-2 mb-3 justify-center sm:justify-start">
+                        <span className="px-3 py-1 rounded-full text-xs font-medium" style={{ background: "var(--accent-dim)", color: "var(--accent)", border: "1px solid rgba(37, 99, 235, 0.15)" }}>
+                          {insights.experienceLevel}
+                        </span>
+                        {parseData.githubUsername && (
+                          <span className="px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5" style={{ background: "rgba(0,0,0,0.04)", color: "var(--text-secondary)" }}>
+                            <GitHubIcon size={12} color="var(--text-secondary)" />
+                            {parseData.githubUsername}
+                          </span>
+                        )}
+                        {parseData.linkedinUsername && (
+                          <span className="px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5" style={{ background: "rgba(10, 102, 194, 0.06)", color: "#0A66C2" }}>
+                            <LinkedInIcon size={12} color="#0A66C2" />
+                            {parseData.linkedinUsername}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+                        {insights.ceoSummary}
+                      </p>
+                    </>
+                  )}
+                  {(!insights || insights.error) && (
+                    <p className="text-sm" style={{ color: "var(--text-muted)" }}>AI insights unavailable.</p>
+                  )}
+                </div>
+              </div>
+            </motion.section>
+
+            <div className="gradient-line mb-8" />
+
+            {/* ── Education Section ── */}
+            {insights?.education && insights.education.length > 0 && (
+              <motion.section className="mb-8" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+                <InsightCard
+                  icon={<GraduationCap size={18} style={{ color: "#7c3aed" }} />}
+                  title="Education"
+                  delay={0.1}
+                >
+                  <div className="space-y-3">
+                    {insights.education.map((edu: Education, i: number) => (
+                      <div key={i} className="p-3 rounded-xl transition-colors" style={{ background: edu.isRenowned ? "rgba(124, 58, 237, 0.04)" : "rgba(0,0,0,0.02)", border: edu.isRenowned ? "1px solid rgba(124, 58, 237, 0.12)" : "1px solid var(--border-subtle)" }}>
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>{edu.institution}</p>
+                              {edu.isRenowned && (
+                                <span className="renowned-badge">
+                                  <Sparkles size={10} />
+                                  Renowned
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-sm mt-0.5" style={{ color: "var(--text-secondary)" }}>{edu.degree}</p>
+                            <div className="flex items-center gap-3 mt-1">
+                              <span className="text-xs" style={{ color: "var(--text-muted)" }}>{edu.year}</span>
+                              {edu.gpa && <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ background: "var(--success-dim)", color: "var(--success)" }}>GPA: {edu.gpa}</span>}
+                            </div>
+                          </div>
+                        </div>
+                        {edu.highlight && (
+                          <p className="text-xs mt-2 italic" style={{ color: "#7c3aed" }}>✦ {edu.highlight}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </InsightCard>
+              </motion.section>
+            )}
+
+            {/* ── Experience Section ── */}
+            {insights?.experience && insights.experience.length > 0 && (
+              <motion.section className="mb-8" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+                <InsightCard
+                  icon={<Briefcase size={18} style={{ color: "#0891b2" }} />}
+                  title="Work Experience"
+                  delay={0.15}
+                >
+                  <div className="space-y-3">
+                    {insights.experience.map((exp: Experience, i: number) => (
+                      <div key={i} className="p-3 rounded-xl" style={{ background: exp.isNotable ? "rgba(8, 145, 178, 0.04)" : "rgba(0,0,0,0.02)", border: exp.isNotable ? "1px solid rgba(8, 145, 178, 0.12)" : "1px solid var(--border-subtle)" }}>
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>{exp.role}</p>
+                              {exp.isNotable && (
+                                <span className="notable-badge">
+                                  <Award size={10} />
+                                  Notable
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-sm" style={{ color: "var(--accent)" }}>{exp.company}</p>
+                            <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>{exp.duration}</p>
+                          </div>
+                        </div>
+                        {exp.notableReason && (
+                          <p className="text-xs mt-1.5 italic" style={{ color: "#0891b2" }}>✦ {exp.notableReason}</p>
+                        )}
+                        {exp.highlights.length > 0 && (
+                          <ul className="mt-2 space-y-1">
+                            {exp.highlights.map((h, j) => (
+                              <li key={j} className="flex items-start gap-2">
+                                <div className="w-1 h-1 rounded-full mt-1.5 shrink-0" style={{ background: "var(--text-muted)" }} />
+                                <span className="text-xs leading-relaxed" style={{ color: "var(--text-secondary)" }}>{h}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </InsightCard>
+              </motion.section>
+            )}
+
+            {/* ── Projects Section ── */}
+            {insights?.projects && insights.projects.length > 0 && (
+              <motion.section className="mb-8" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+                <InsightCard
+                  icon={<FolderKanban size={18} style={{ color: "#ea580c" }} />}
+                  title="Projects"
+                  delay={0.2}
+                >
+                  <div className="space-y-3">
+                    {insights.projects.map((proj: Project, i: number) => (
+                      <div key={i} className="p-3 rounded-xl" style={{ background: proj.isImpressive ? "rgba(234, 88, 12, 0.04)" : "rgba(0,0,0,0.02)", border: proj.isImpressive ? "1px solid rgba(234, 88, 12, 0.12)" : "1px solid var(--border-subtle)" }}>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>{proj.name}</p>
+                          {proj.isImpressive && (
+                            <span className="impressive-badge">
+                              <Sparkles size={10} />
+                              Impressive
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs mt-1 leading-relaxed" style={{ color: "var(--text-secondary)" }}>{proj.description}</p>
+                        {proj.impressiveReason && (
+                          <p className="text-xs mt-1 italic" style={{ color: "#ea580c" }}>✦ {proj.impressiveReason}</p>
+                        )}
+                        {proj.techStack.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 mt-2">
+                            {proj.techStack.map((t, j) => (
+                              <span key={j} className="text-[10px] px-2 py-0.5 rounded-full font-medium" style={{ background: "rgba(0,0,0,0.05)", color: "var(--text-secondary)" }}>{t}</span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </InsightCard>
+              </motion.section>
+            )}
+
+            {/* ── Achievements Section ── */}
+            {insights?.achievements && insights.achievements.length > 0 && (
+              <motion.section className="mb-8" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
+                <InsightCard
+                  icon={<Trophy size={18} style={{ color: "#d97706" }} />}
+                  title="Achievements"
+                  delay={0.25}
+                >
+                  <div className="space-y-2">
+                    {insights.achievements.map((ach: Achievement, i: number) => (
+                      <div key={i} className="flex items-start gap-3 p-2.5 rounded-xl" style={{ background: ach.isExceptional ? "rgba(217, 119, 6, 0.05)" : "transparent", border: ach.isExceptional ? "1px solid rgba(217, 119, 6, 0.12)" : "1px solid transparent" }}>
+                        <div className="shrink-0 mt-0.5">
+                          {ach.isExceptional ? (
+                            <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: "rgba(217, 119, 6, 0.1)" }}>
+                              <Trophy size={12} style={{ color: "#d97706" }} />
+                            </div>
+                          ) : (
+                            <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: "rgba(0,0,0,0.04)" }}>
+                              <Award size={12} style={{ color: "var(--text-muted)" }} />
+                            </div>
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-sm" style={{ color: "var(--text-primary)" }}>{ach.title}</p>
+                          {ach.exceptionalReason && (
+                            <p className="text-xs mt-0.5 italic" style={{ color: "#d97706" }}>✦ {ach.exceptionalReason}</p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </InsightCard>
+              </motion.section>
+            )}
+
+            {/* ── Skills Section ── */}
+            {insights && !insights.error && (
+              <section className={`grid grid-cols-1 ${showPdf && pdfDataUrl ? '' : 'lg:grid-cols-2'} gap-5 mb-8`}>
+                <InsightCard icon={<Target size={18} style={{ color: "var(--accent)" }} />} title="Skill Radar" delay={0.3} accent>
+                  <SkillsRadar categories={insights.skillCategories} />
+                </InsightCard>
+                <InsightCard icon={<Sparkles size={18} style={{ color: "var(--accent)" }} />} title="Detected Skills" delay={0.35}>
+                  <div className="flex flex-wrap gap-2">
+                    {insights.skills.map((skill) => (<span key={skill} className="tag-pill">{skill}</span>))}
+                  </div>
+                  {/* Certifications inline */}
+                  {insights.certifications && insights.certifications.length > 0 && (
+                    <div className="mt-4 pt-3" style={{ borderTop: "1px solid var(--border-subtle)" }}>
+                      <p className="text-xs font-medium uppercase tracking-wider mb-2" style={{ color: "var(--text-muted)" }}>Certifications</p>
+                      <div className="flex flex-wrap gap-2">
+                        {insights.certifications.map((cert, i) => (
+                          <span key={i} className="text-xs px-2.5 py-1 rounded-full font-medium flex items-center gap-1" style={{ background: "var(--success-dim)", color: "var(--success)", border: "1px solid rgba(16, 185, 129, 0.15)" }}>
+                            <ShieldCheck size={10} />
+                            {cert}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </InsightCard>
+              </section>
+            )}
+
+            {/* ── Strengths & Red Flags ── */}
+            {insights && !insights.error && (
+              <section className={`grid grid-cols-1 ${showPdf && pdfDataUrl ? '' : 'lg:grid-cols-2'} gap-5 mb-8`}>
+                <InsightCard icon={<TrendingUp size={18} style={{ color: "var(--success)" }} />} title="Strengths" delay={0.4}>
+                  <ul className="space-y-2.5">
+                    {insights.strengths.map((s, i) => (
+                      <li key={i} className="flex items-start gap-2.5">
+                        <div className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: "var(--success)" }} />
+                        <span className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>{s}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </InsightCard>
+                <InsightCard icon={<AlertTriangle size={18} style={{ color: "var(--warning)" }} />} title="Areas to Improve" delay={0.45}>
+                  <ul className="space-y-2.5">
+                    {insights.redFlags.map((r, i) => (
+                      <li key={i} className="flex items-start gap-2.5">
+                        <div className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: "var(--warning)" }} />
+                        <span className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>{r}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </InsightCard>
+              </section>
+            )}
+
+            {/* ── ATS & Format Scores ── */}
+            {insights && !insights.error && (insights.atsScore !== undefined || insights.formatScore !== undefined) && (
+              <motion.section className={`grid grid-cols-1 ${showPdf && pdfDataUrl ? '' : 'lg:grid-cols-2'} gap-5 mb-8`} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
+                {insights.atsScore !== undefined && (
+                  <InsightCard icon={<ShieldCheck size={18} style={{ color: "#6366f1" }} />} title="ATS Compatibility" delay={0.5}>
+                    <div className="flex items-center gap-4 mb-3">
+                      <ScoreBadge score={insights.atsScore} size={80} />
+                      <div>
+                        <p className="text-xs font-medium" style={{ color: "var(--text-muted)" }}>ATS Ready Score</p>
+                        <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+                          {insights.atsScore >= 80 ? "Excellent ATS compatibility" : insights.atsScore >= 60 ? "Good but room for improvement" : "Needs significant improvement"}
+                        </p>
+                      </div>
+                    </div>
+                    {insights.atsIssues && insights.atsIssues.length > 0 && (
+                      <ul className="space-y-1.5">
+                        {insights.atsIssues.map((issue, i) => (
+                          <li key={i} className="flex items-start gap-2">
+                            <div className="w-1 h-1 rounded-full mt-1.5 shrink-0" style={{ background: "#6366f1" }} />
+                            <span className="text-xs leading-relaxed" style={{ color: "var(--text-secondary)" }}>{issue}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </InsightCard>
+                )}
+                {insights.formatScore !== undefined && (
+                  <InsightCard icon={<FileCheck size={18} style={{ color: "#0d9488" }} />} title="Format Quality" delay={0.55}>
+                    <div className="flex items-center gap-4 mb-3">
+                      <ScoreBadge score={insights.formatScore} size={80} />
+                      <div>
+                        <p className="text-xs font-medium" style={{ color: "var(--text-muted)" }}>Format Score</p>
+                        <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+                          {insights.formatScore >= 80 ? "Clean, professional formatting" : insights.formatScore >= 60 ? "Decent formatting with minor issues" : "Formatting needs work"}
+                        </p>
+                      </div>
+                    </div>
+                    {insights.formatIssues && insights.formatIssues.length > 0 && (
+                      <ul className="space-y-1.5">
+                        {insights.formatIssues.map((issue, i) => (
+                          <li key={i} className="flex items-start gap-2">
+                            <div className="w-1 h-1 rounded-full mt-1.5 shrink-0" style={{ background: "#0d9488" }} />
+                            <span className="text-xs leading-relaxed" style={{ color: "var(--text-secondary)" }}>{issue}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </InsightCard>
+                )}
+              </motion.section>
+            )}
+
+            {/* ── GitHub Card ── */}
+            {githubData && (
+              <section className="mb-8">
+                <InsightCard icon={<GitHubIcon size={18} color="var(--text-secondary)" />} title="GitHub Profile" delay={0.6}>
+                  <GitHubCard data={githubData} />
+                </InsightCard>
+              </section>
+            )}
+
+            {/* ── Extracted Links ── */}
+            {parseData.portfolioLinks && parseData.portfolioLinks.length > 0 && (
+              <section className="mb-8">
+                <InsightCard icon={<Sparkles size={18} style={{ color: "var(--text-muted)" }} />} title="Extracted Links" delay={0.65}>
+                  <div className="flex flex-col gap-2">
+                    {parseData.portfolioLinks.map((link, idx) => {
+                      const { icon, label } = getLinkIcon(link);
+                      return (
+                        <a key={idx} href={link} target="_blank" rel="noopener noreferrer"
+                          className="text-sm font-medium transition-all p-3 rounded-xl flex items-center gap-3"
+                          style={{ color: "var(--text-primary)", border: "1px solid var(--border-subtle)" }}
+                          onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--border-hover)"; e.currentTarget.style.background = "rgba(0,0,0,0.02)"; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border-subtle)"; e.currentTarget.style.background = "transparent"; }}
+                        >
+                          <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: "rgba(0,0,0,0.04)" }}>{icon}</div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs font-medium" style={{ color: "var(--text-muted)" }}>{label}</p>
+                            <p className="text-sm truncate" style={{ color: "var(--accent)" }}>{link}</p>
+                          </div>
+                        </a>
+                      );
+                    })}
+                  </div>
+                </InsightCard>
+              </section>
+            )}
+
+            {/* ── Raw Text fallback ── */}
+            {!pdfDataUrl && <RawTextSection text={parseData.text} />}
+
+            <div className="h-8" />
+          </div>
+        </div>
+
+        {/* RIGHT: PDF viewer (desktop) */}
+        {pdfDataUrl && showPdf && (
+          <motion.div
+            className="hidden md:flex pdf-viewer-panel"
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 30 }}
+            transition={{ duration: 0.4 }}
+          >
+            <div className="pdf-viewer-container">
+              <div className="pdf-viewer-header">
+                <FileText size={14} style={{ color: "var(--text-muted)" }} />
+                <span className="text-xs font-medium flex-1" style={{ color: "var(--text-muted)" }}>Resume PDF</span>
+                <button
+                  onClick={() => setShowPdf(false)}
+                  className="w-6 h-6 rounded-md flex items-center justify-center hover:bg-gray-100 transition-colors"
+                  title="Close PDF viewer"
+                >
+                  <X size={14} className="text-gray-400" />
+                </button>
+              </div>
+              <iframe src={pdfDataUrl ? `${pdfDataUrl}#view=FitH` : undefined} className="pdf-viewer-iframe" title="Resume PDF" />
+            </div>
+          </motion.div>
         )}
       </div>
     </main>
+  );
+}
+
+/* ── Raw Text Sub-component ── */
+function RawTextSection({ text }: { text: string }) {
+  const [show, setShow] = useState(false);
+  return (
+    <section className="mb-8">
+      <InsightCard icon={<FileText size={18} style={{ color: "var(--text-muted)" }} />} title="Extracted Text" delay={0.7}>
+        <button onClick={() => setShow(!show)} className="flex items-center gap-2 text-sm transition-colors mb-3" style={{ color: "var(--text-muted)" }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "var(--text-primary)")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}
+        >
+          <ChevronDown size={16} className="transition-transform" style={{ transform: show ? "rotate(180deg)" : "rotate(0deg)" }} />
+          {show ? "Hide" : "Show"} extracted text
+        </button>
+        <AnimatePresence>
+          {show && (
+            <motion.pre className="text-xs leading-relaxed whitespace-pre-wrap p-4 rounded-xl overflow-auto max-h-96"
+              style={{ color: "var(--text-secondary)", background: "rgba(0,0,0,0.02)", border: "1px solid var(--border-subtle)" }}
+              initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3 }}
+            >
+              {text}
+            </motion.pre>
+          )}
+        </AnimatePresence>
+      </InsightCard>
+    </section>
   );
 }
