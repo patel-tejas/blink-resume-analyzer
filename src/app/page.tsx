@@ -157,7 +157,7 @@ export default function Home() {
       }}
     >
       {/* Soft gradient overlay to make clouds fade into white at the bottom where we drop content */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/10 to-white/95 pointer-events-none z-0"></div>
+      <div className="absolute inset-x-0 bottom-0 h-[40vh] bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none z-0"></div>
 
       <div className="relative z-10 w-full max-w-4xl mx-auto px-6 py-12 flex flex-col items-center mt-20 md:mt-32">
 
@@ -167,27 +167,24 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
         >
-          <div className="bg-white/80 backdrop-blur-md px-8 py-6 rounded-[2rem] shadow-sm border border-white/60 text-center inline-block">
+          <div className="text-center inline-block drop-shadow-md">
             <h1
               className="text-4xl md:text-5xl lg:text-6xl leading-tight text-slate-900 font-bold tracking-tight"
               style={{ fontFamily: "var(--font-serif)" }}
             >
-              Your Resume Has <span className="text-rose-600">30s</span> to Live.<br />
-              <span className="text-blue-700">Will It Pass FAANG Recruiter?</span>
+              What does your resume <br />
+              <span className="text-orange-800">actually</span> say about you?
             </h1>
 
-            <p className="mt-5 text-base md:text-lg text-slate-700 font-medium max-w-lg mx-auto">
-              Our AI judges it like it's the final round of Squid Game for
-              <span className="inline-flex items-center gap-1.5 ml-2 align-middle border border-slate-200 bg-white shadow-sm rounded-full px-3 py-1 text-slate-900">
-                <span className="font-bold tracking-wider">MAMAA</span>
-              </span>
+            <p className="mt-5 text-base md:text-lg text-slate-800 font-medium max-w-lg mx-auto drop-shadow-sm">
+              Analyze your resume now for free!
             </p>
           </div>
         </motion.div>
 
         {/* Upload zone matching the light theme */}
         <motion.div
-          className="w-full max-w-md relative z-10 bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl p-2 border border-blue-100"
+          className="w-full max-w-sm relative z-10 bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl p-1.5 border border-blue-100"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.6 }}

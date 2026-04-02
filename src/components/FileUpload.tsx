@@ -58,10 +58,10 @@ export default function FileUpload({ onFileSelect, isProcessing }: FileUploadPro
   };
 
   return (
-    <div className="w-full max-w-xl mx-auto">
+    <div className="w-full max-w-sm mx-auto">
       <motion.div
         {...(getRootProps() as any)}
-        className={`relative cursor-pointer rounded-2xl p-10 text-center transition-all duration-300 ${
+        className={`relative cursor-pointer rounded-2xl p-6 text-center transition-all duration-300 ${
           isProcessing
             ? "opacity-50 cursor-not-allowed border-2 border-dashed border-white/5"
             : isDragActive
