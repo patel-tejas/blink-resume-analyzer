@@ -1,65 +1,250 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import FileUpload from "@/components/FileUpload";
+import ProgressStepper from "@/components/ProgressStepper";
+import type { ProgressStep, ParseResponse, GitHubData, AIInsights, ResumeResult } from "@/lib/types";
+
+const INITIAL_STEPS: ProgressStep[] = [
+  { id: "upload", label: "Upload", status: "pending" },
+  { id: "parse", label: "Parse PDF", status: "pending" },
+  { id: "github", label: "GitHub", status: "pending" },
+  { id: "ai", label: "AI Analysis", status: "pending" },
+  { id: "done", label: "Done", status: "pending" },
+];
 
 export default function Home() {
+  const router = useRouter();
+  const [steps, setSteps] = useState<ProgressStep[]>(INITIAL_STEPS);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const updateStep = (id: string, update: Partial<ProgressStep>) => {
+    setSteps((prev) =>
+      prev.map((s) => (s.id === id ? { ...s, ...update } : s))
+    );
+  };
+
+  const processResume = useCallback(
+    async (file: File) => {
+      setIsProcessing(true);
+      setError(null);
+      setSteps(INITIAL_STEPS);
+
+      let parseData: ParseResponse | null = null;
+      let githubData: GitHubData | null = null;
+      let insights: AIInsights | null = null;
+
+      try {
+        // Step 1: Upload
+        updateStep("upload", { status: "active", detail: "Uploading..." });
+        const formData = new FormData();
+        formData.append("resume", file);
+
+        const parseRes = await fetch("/api/parse", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!parseRes.ok) {
+          const err = await parseRes.json();
+          throw new Error(err.error || "Upload failed");
+        }
+
+        parseData = (await parseRes.json()) as ParseResponse;
+        updateStep("upload", { status: "done" });
+
+        // Step 2: Parse complete
+        updateStep("parse", { status: "active", detail: "Extracting text..." });
+        await new Promise((r) => setTimeout(r, 600));
+        updateStep("parse", {
+          status: "done",
+          detail: parseData.githubUsername
+            ? `Found: ${parseData.githubUsername}`
+            : "No GitHub found",
+        });
+
+        // Step 3: GitHub enrichment
+        if (parseData.githubUsername) {
+          updateStep("github", { status: "active", detail: "Fetching profile..." });
+
+          try {
+            const ghRes = await fetch(
+              `/api/enrich/github?username=${encodeURIComponent(parseData.githubUsername)}`
+            );
+            const ghData = await ghRes.json();
+
+            if (ghData.error) {
+              updateStep("github", { status: "error", detail: ghData.message });
+            } else {
+              githubData = ghData as GitHubData;
+              updateStep("github", {
+                status: "done",
+                detail: `${ghData.publicRepos} repos`,
+              });
+            }
+          } catch {
+            updateStep("github", { status: "error", detail: "API unavailable" });
+          }
+        } else {
+          updateStep("github", { status: "skipped", detail: "No link found" });
+        }
+
+        // Step 4: AI Insights
+        updateStep("ai", { status: "active", detail: "Analyzing with Gemini..." });
+
+        try {
+          const aiRes = await fetch("/api/insights", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              resumeText: parseData.text,
+              githubData: githubData,
+            }),
+          });
+
+          const aiData = await aiRes.json();
+
+          if (aiData.error) {
+            updateStep("ai", { status: "error", detail: aiData.message });
+          } else {
+            insights = aiData as AIInsights;
+            updateStep("ai", { status: "done", detail: `Score: ${aiData.score}/100` });
+          }
+        } catch {
+          updateStep("ai", { status: "error", detail: "Analysis failed" });
+        }
+
+        // Step 5: Done
+        updateStep("done", { status: "done" });
+
+        // Store result and navigate
+        const result: ResumeResult = {
+          jobId: parseData.jobId,
+          parseData,
+          githubData,
+          insights,
+          timestamp: Date.now(),
+        };
+
+        sessionStorage.setItem(parseData.jobId, JSON.stringify(result));
+
+        await new Promise((r) => setTimeout(r, 800));
+        router.push(`/dashboard/${parseData.jobId}`);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : "Something went wrong";
+        setError(msg);
+        setIsProcessing(false);
+
+        setSteps((prev) =>
+          prev.map((s) => (s.status === "active" ? { ...s, status: "error", detail: msg } : s))
+        );
+      }
+    },
+    [router]
+  );
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <main
+      className="flex-1 flex flex-col items-center justify-center min-h-screen relative overflow-hidden"
+      style={{
+        backgroundImage: 'url("/swiss kid day.webp")',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
+      {/* Soft gradient overlay to make clouds fade into white at the bottom where we drop content */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/10 to-white/95 pointer-events-none z-0"></div>
+
+      <div className="relative z-10 w-full max-w-4xl mx-auto px-6 py-12 flex flex-col items-center mt-20 md:mt-32">
+
+        <motion.div
+          className="text-center mb-10 flex flex-col items-center"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
+        >
+          <div className="bg-white/80 backdrop-blur-md px-8 py-6 rounded-[2rem] shadow-sm border border-white/60 text-center inline-block">
+            <h1
+              className="text-4xl md:text-5xl lg:text-6xl leading-tight text-slate-900 font-bold tracking-tight"
+              style={{ fontFamily: "var(--font-serif)" }}
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              Your Resume Has <span className="text-rose-600">30s</span> to Live.<br />
+              <span className="text-blue-700">Will It Pass FAANG Recruiter?</span>
+            </h1>
+
+            <p className="mt-5 text-base md:text-lg text-slate-700 font-medium max-w-lg mx-auto">
+              Our AI judges it like it's the final round of Squid Game for
+              <span className="inline-flex items-center gap-1.5 ml-2 align-middle border border-slate-200 bg-white shadow-sm rounded-full px-3 py-1 text-slate-900">
+                <span className="font-bold tracking-wider">MAMAA</span>
+              </span>
+            </p>
+          </div>
+        </motion.div>
+
+        {/* Upload zone matching the light theme */}
+        <motion.div
+          className="w-full max-w-md relative z-10 bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl p-2 border border-blue-100"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4, duration: 0.6 }}
+        >
+          <FileUpload onFileSelect={processResume} isProcessing={isProcessing} />
+        </motion.div>
+
+        {/* Progress stepper */}
+        <AnimatePresence>
+          {isProcessing && (
+            <motion.div
+              className="mt-8 w-full max-w-xl relative z-10 p-4 bg-white/80 backdrop-blur-md rounded-2xl shadow-lg border border-gray-100"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.4 }}
             >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+              <ProgressStepper steps={steps} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Error display */}
+        <AnimatePresence>
+          {error && !isProcessing && (
+            <motion.div
+              className="mt-6 max-w-md text-center bg-red-50 text-red-600 px-4 py-3 rounded-lg shadow-sm border border-red-100"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+            >
+              <p className="text-sm font-medium">
+                {error}
+              </p>
+              <button
+                onClick={() => {
+                  setError(null);
+                  setSteps(INITIAL_STEPS);
+                }}
+                className="mt-2 text-xs font-semibold text-red-700 underline"
+              >
+                Try again
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <motion.p
+          className="mt-6 text-xs font-medium text-gray-400"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8 }}
+        >
+          *no signup required
+        </motion.p>
+      </div>
+
+    </main>
   );
 }
