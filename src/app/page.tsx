@@ -183,9 +183,9 @@ export default function Home() {
       <div className="relative z-10 w-full max-w-5xl mx-auto px-6 pt-4 flex flex-col items-center">
 
         {/* Centered Resume Hero Image with Deep Fading */}
-        <div className="relative w-full max-w-2xl flex flex-col items-center -mb-28 md:-mb-40">
+        <div className="relative w-full max-w-lg md:max-w-xl flex flex-col items-center -mb-28 md:-mb-40 pt-6">
           <motion.div
-            className="w-full relative opacity-60 select-none pointer-events-none -mt-10"
+            className="w-full relative opacity-60 select-none pointer-events-none"
             initial={{ opacity: 0, y: 60, rotateX: 15, scale: 0.9 }}
             animate={{ opacity: 0.7, y: 0, rotateX: 3, scale: 1 }}
             transition={{ duration: 1.8, ease: [0.22, 1, 0.36, 1] }}
