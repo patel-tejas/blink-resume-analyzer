@@ -1,6 +1,6 @@
 # Blink Resume Parser
 
-A modern Next.js application that forensically parses PDF resumes, extracts actionable data, enriches profiles via the GitHub API, and generates strictly formatted AI-powered insights using the Groq LLaMA model—presented in a stunning dark-themed, glassmorphic dashboard.
+This project has been made as my final interview round assignment at Blink Analytics. A modern Next.js application that forensically parses PDF resumes, extracts actionable data, enriches profiles via the GitHub API, and generates strictly formatted AI-powered insights using the Groq LLaMA model—presented in a stunning dark-themed, glassmorphic dashboard.
 
 ---
 
