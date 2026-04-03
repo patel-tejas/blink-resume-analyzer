@@ -4,6 +4,22 @@ This project has been made as my final interview round assignment at Blink Analy
 
 ---
 
+## 📷 Visual Showcase
+
+### Landing Page
+![Landing Page](public/landingpage.png)
+
+### Core Hero Features
+![Hero 1](public/hero1.png)
+![Hero 2](public/hero2.png)
+![Hero 3](public/hero3.png)
+![Hero 4](public/hero4.png)
+
+### Technical Architecture & Flow
+![Technical Flow](public/technical_flow.png)
+
+---
+
 ## 🚀 Features at a Glance
 
 1. **Intelligent PDF Parsing & Security Validation** 
