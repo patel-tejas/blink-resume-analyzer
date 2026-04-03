@@ -178,7 +178,7 @@ export default function Home() {
       }}
     >
       {/* Deep gradient overlay to fade clouds perfectly into background color */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent from-[20%] via-[#f8f9fa]/80 via-[50%] to-[#f8f9fa] to-[65%] pointer-events-none z-0"></div>
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent from-[10%] via-[#f8f9fa]/80 via-[38%] to-[#f8f9fa] to-[55%] pointer-events-none z-0"></div>
 
       <div className="relative z-10 w-full max-w-5xl mx-auto px-6 pt-4 flex flex-col items-center">
 
@@ -218,7 +218,7 @@ export default function Home() {
                 <span className="text-blue-600 italic font-normal">actually</span> say about You?
               </h1>
 
-              <p 
+              <p
                 className="mt-4 text-lg md:text-xl text-slate-400 font-medium tracking-tight"
                 style={{ fontFamily: "var(--font-instrument)" }}
               >
@@ -250,7 +250,7 @@ export default function Home() {
           {isProcessing && (
             <motion.div
               key="progress"
-              className="w-full relative z-10 p-4 bg-white/80 backdrop-blur-md rounded-2xl shadow-lg border border-gray-100"
+              className="w-full relative z-10 p-4 bg-blue-50/80 backdrop-blur-md rounded-2xl shadow-lg border border-blue-100"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95 }}

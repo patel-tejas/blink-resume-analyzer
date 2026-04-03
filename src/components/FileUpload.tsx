@@ -64,8 +64,8 @@ export default function FileUpload({ onFileSelect, isProcessing }: FileUploadPro
         className={`relative cursor-pointer transition-all duration-300 w-full rounded-2xl p-6 border-2 border-dashed ${isProcessing
             ? "opacity-50 cursor-not-allowed border-slate-200"
             : isDragActive
-              ? "border-blue-400 bg-white/80 shadow-lg"
-              : "border-slate-300 bg-white/40 hover:bg-white/80 hover:border-slate-400 backdrop-blur-sm"
+              ? "border-blue-400 bg-blue-50/80 shadow-[0_0_20px_rgba(59,130,246,0.15)]"
+              : "border-blue-200/60 bg-blue-50/20 hover:bg-blue-50/40 hover:border-blue-300 backdrop-blur-sm shadow-sm"
           }`}
         whileHover={!isProcessing ? { scale: 1.01 } : undefined}
         whileTap={!isProcessing ? { scale: 0.99 } : undefined}
@@ -110,8 +110,8 @@ export default function FileUpload({ onFileSelect, isProcessing }: FileUploadPro
               exit={{ opacity: 0, y: -10 }}
               className="flex flex-col items-center justify-center"
             >
-              <div className={`inline-flex items-center gap-2.5 px-5 py-2.5 rounded-xl bg-white border border-slate-200 shadow-sm text-slate-800 font-semibold transition-colors ${isDragActive ? 'border-blue-400 shadow-md text-blue-600' : 'hover:border-slate-300 hover:shadow-md'}`}>
-                <Upload size={16} className={isDragActive ? 'text-blue-500' : 'text-slate-600'} />
+              <div className={`inline-flex items-center gap-2.5 px-5 py-2.5 rounded-xl bg-white/90 border border-blue-100 shadow-sm text-slate-800 font-semibold transition-all ${isDragActive ? 'border-blue-400 shadow-lg scale-105 text-blue-600' : 'hover:border-blue-300 hover:shadow-md'}`}>
+                <Upload size={16} className={isDragActive ? 'text-blue-500' : 'text-blue-500/70'} />
                 <span className="text-sm">Upload Resume</span>
               </div>
               <p className="mt-3 text-xs text-slate-500 font-medium">
