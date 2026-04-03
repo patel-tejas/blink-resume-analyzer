@@ -31,6 +31,17 @@ export async function POST(request: Request) {
 
     // Parse PDF and embedded links
     const buffer = Buffer.from(await file.arrayBuffer());
+    
+    // 1. Magic Bytes Validation (Security)
+    // Genuine PDFs must start with `%PDF` (Hex: 25 50 44 46)
+    // Ensures a renamed .exe or .jpg fails instantly without passing to parser
+    if (buffer.length < 4 || buffer[0] !== 0x25 || buffer[1] !== 0x50 || buffer[2] !== 0x44 || buffer[3] !== 0x46) {
+      return NextResponse.json(
+        { error: "Invalid file format. The uploaded file is not a genuine PDF document." },
+        { status: 415 }
+      );
+    }
+
     const pdfParse = require("pdf-parse");
     
     // We'll collect all embedded URLs here
@@ -67,6 +78,42 @@ export async function POST(request: Request) {
 
     const pdfData = await pdfParse(buffer, options);
     const rawText: string = pdfData.text;
+
+    // 2. Resume Content Validation (Anti-OCR & Heuristics)
+    const strippedText = rawText.replace(/\s+/g, '');
+    
+    // a. Minimum length heuristic (real resumes have at least 200 chars)
+    if (strippedText.length < 200) {
+      return NextResponse.json(
+        { error: "File appears to be empty or scanned. Please upload a structured text-based PDF resume." },
+        { status: 422 }
+      );
+    }
+
+    // b. Maximum page count
+    const MAX_PAGES = 5;
+    if (pdfData.numpages > MAX_PAGES) {
+      return NextResponse.json(
+        { error: `This PDF has ${pdfData.numpages} pages, which exceeds the maximum allowed length of ${MAX_PAGES} pages. Please upload a single resume.` },
+        { status: 422 }
+      );
+    }
+
+    // c. Keyword presence – look for common resume sections
+    const resumeKeywords = [
+      'experience', 'education', 'skills', 'projects',
+      'work history', 'summary', 'certification', 'achievements',
+      'university', 'school', 'manager', 'engineer', 'developer'
+    ];
+    const lowerText = rawText.toLowerCase();
+    const hasResumeKeywords = resumeKeywords.some(keyword => lowerText.includes(keyword));
+
+    if (!hasResumeKeywords) {
+      return NextResponse.json(
+        { error: "File does not look like a resume (missing common sections). Please upload a proper resume PDF." },
+        { status: 422 }
+      );
+    }
 
     // Extract generic links from text (just in case they are plaintext)
     const urlPattern = /https?:\/\/[a-zA-Z0-9.\-_~:/?#\[\]@!$&'()*+,;=]+/gi;

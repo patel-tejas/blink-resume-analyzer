@@ -290,12 +290,22 @@ ${radarCategories}
     const leetcodePromise = (category === "technical" && leetcodeUsername) ? fetchLeetCodeData(leetcodeUsername) : Promise.resolve(null);
     const codeforcesPromise = (category === "technical" && codeforcesUsername) ? fetchCodeforcesData(codeforcesUsername) : Promise.resolve(null);
 
-    // Wait for all
-    const [chatCompletion, leetcodeData, codeforcesData] = await Promise.all([
+    // Wait for all using allSettled to prevent external API failures from crashing the primary analysis
+    const results = await Promise.allSettled([
       groqPromise,
       leetcodePromise,
       codeforcesPromise
     ]);
+
+    // If the primary AI generation fails, we must throw because we have no useful output
+    if (results[0].status === "rejected") {
+      throw results[0].reason;
+    }
+    
+    const chatCompletion = results[0].value;
+    // For enrichment APIs, degrade gracefully to null on failure instead of crashing the request
+    const leetcodeData = results[1].status === "fulfilled" ? results[1].value : null;
+    const codeforcesData = results[2].status === "fulfilled" ? results[2].value : null;
 
     const responseText = chatCompletion.choices[0]?.message?.content || "{}";
 

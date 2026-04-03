@@ -149,7 +149,13 @@ export default function Home() {
         await new Promise((r) => setTimeout(r, 800));
         router.push(`/dashboard/${parseData.jobId}`);
       } catch (err) {
-        const msg = err instanceof Error ? err.message : "Something went wrong";
+        let msg = err instanceof Error ? err.message : "Something went wrong";
+        
+        // Handle QuotaExceededError nicely specifically
+        if (msg.includes("exceeded the quota") || (err as Error)?.name === 'QuotaExceededError') {
+          msg = "The file is too heavy or complex to load in browser memory. This usually happens with portfolios, image-heavy documents, or non-resumes. Please upload a standard text-based PDF resume.";
+        }
+
         setError(msg);
         setIsProcessing(false);
 

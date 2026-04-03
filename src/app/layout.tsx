@@ -19,6 +19,9 @@ export const metadata: Metadata = {
   description:
     "Upload your resume, get AI-powered insights, skill analysis, and GitHub enrichment in seconds.",
   keywords: ["resume parser", "AI insights", "GitHub", "resume analysis"],
+  icons: {
+    icon: "/favicon.png",
+  },
 };
 
 export default function RootLayout({
