@@ -78,9 +78,9 @@ export default function Home() {
 
         // Step 3: Links and GitHub enrichment
         const category = classifyResume(parseData.text);
-        
+
         updateStep("github", { status: "active", detail: "Scanning links..." });
-        
+
         if (parseData.githubUsername && category === "technical") {
           try {
             const ghRes = await fetch(
@@ -98,7 +98,7 @@ export default function Home() {
           // Artificial delay for UI consistency when no API call is made
           await new Promise((r) => setTimeout(r, 600));
         }
-        
+
         updateStep("github", {
           status: "done",
           detail: "Links extracted"
@@ -150,7 +150,7 @@ export default function Home() {
         router.push(`/dashboard/${parseData.jobId}`);
       } catch (err) {
         let msg = err instanceof Error ? err.message : "Something went wrong";
-        
+
         // Handle QuotaExceededError nicely specifically
         if (msg.includes("exceeded the quota") || (err as Error)?.name === 'QuotaExceededError') {
           msg = "The file is too heavy or complex to load in browser memory. This usually happens with portfolios, image-heavy documents, or non-resumes. Please upload a standard text-based PDF resume.";
@@ -180,62 +180,89 @@ export default function Home() {
       {/* Deep gradient overlay to fade clouds perfectly into background color */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent from-[20%] via-[#f8f9fa]/80 via-[50%] to-[#f8f9fa] to-[65%] pointer-events-none z-0"></div>
 
-      <div className="relative z-10 w-full max-w-4xl mx-auto px-6 py-12 flex flex-col items-center mt-20 md:mt-32">
+      <div className="relative z-10 w-full max-w-5xl mx-auto px-6 pt-4 flex flex-col items-center">
 
-        <motion.div
-          className="text-center mb-10 flex flex-col items-center"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
-        >
-          <div className="text-center inline-block drop-shadow-md">
-            <h1
-              className="text-4xl md:text-5xl lg:text-[4.5rem] leading-[1.05] text-slate-800 tracking-tight font-normal"
-              style={{ fontFamily: "var(--font-instrument)" }}
-            >
-              What does your Resume <br />
-              <span className="text-blue-600 italic font-normal">actually</span> say about You?
-            </h1>
+        {/* Centered Resume Hero Image with Deep Fading */}
+        <div className="relative w-full max-w-2xl flex flex-col items-center -mb-28 md:-mb-40">
+          <motion.div
+            className="w-full relative opacity-60 select-none pointer-events-none -mt-10"
+            initial={{ opacity: 0, y: 60, rotateX: 15, scale: 0.9 }}
+            animate={{ opacity: 0.7, y: 0, rotateX: 3, scale: 1 }}
+            transition={{ duration: 1.8, ease: [0.22, 1, 0.36, 1] }}
+            style={{
+              perspective: '1200px',
+              maskImage: 'linear-gradient(to bottom, black 50%, transparent 95%), linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)',
+              WebkitMaskImage: 'linear-gradient(to bottom, black 50%, transparent 95%), linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)',
+            }}
+          >
+            <img
+              src="/Tejas Patel Resume img.jpg"
+              alt="Resume Preview"
+              className="w-full h-auto rounded-xl shadow-[0_30px_60px_rgba(0,0,0,0.15)] border border-white/40"
+            />
+          </motion.div>
 
-            <p className="mt-5 text-base md:text-lg text-slate-800 font-medium max-w-lg mx-auto drop-shadow-sm">
-              Analyze your resume now for free!
-            </p>
-          </div>
-        </motion.div>
+          {/* Overlapping Hero Text - Positioned at bottom of image with solid gradient behind it */}
+          <motion.div
+            className="relative bottom-4 md:bottom-12 text-center z-20 w-[120%] bg-gradient-to-t from-[#f8f9fa] via-[#f8f9fa]/90 to-transparent pt-5 pb-24 mb-10"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+          >
+            <div className="text-center inline-block">
+              <h1
+                className="text-4xl md:text-5xl lg:text-[4.5rem] leading-[1.05] text-slate-900 tracking-tight font-normal drop-shadow-[0_4px_20px_rgba(255,255,255,1)]"
+                style={{ fontFamily: "var(--font-instrument)" }}
+              >
+                What does your Resume <br />
+                <span className="text-blue-600 italic font-normal">actually</span> say about You?
+              </h1>
 
-        {/* Invisible container for FileUpload */}
-        <motion.div
-          className="relative z-10 w-full flex justify-center mt-6"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.6 }}
-        >
-          <FileUpload onFileSelect={processResume} isProcessing={isProcessing} />
-        </motion.div>
 
-        {/* Progress stepper */}
-        <AnimatePresence>
-          {isProcessing && (
+            </div>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Unified Interaction Zone to prevent layout shifts */}
+      <div className="relative z-20 w-full max-w-xl mx-auto flex flex-col items-center justify-start mt-12 min-h-[140px]">
+        <AnimatePresence mode="wait">
+          {!isProcessing && !error && (
             <motion.div
-              className="mt-8 w-full max-w-xl relative z-10 p-4 bg-white/80 backdrop-blur-md rounded-2xl shadow-lg border border-gray-100"
+              key="upload"
+              className="w-full max-w-[300px]"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="w-full scale-90 origin-top">
+                <FileUpload onFileSelect={processResume} isProcessing={isProcessing} />
+              </div>
+            </motion.div>
+          )}
+
+          {isProcessing && (
+            <motion.div
+              key="progress"
+              className="w-full relative z-10 p-4 bg-white/80 backdrop-blur-md rounded-2xl shadow-lg border border-gray-100"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.4 }}
             >
               <ProgressStepper steps={steps} />
             </motion.div>
           )}
-        </AnimatePresence>
 
-        {/* Error display */}
-        <AnimatePresence>
           {error && !isProcessing && (
             <motion.div
-              className="mt-6 max-w-md text-center bg-red-50 text-red-600 px-4 py-3 rounded-lg shadow-sm border border-red-100"
+              key="error"
+              className="w-full max-w-md text-center bg-red-50 text-red-600 px-4 py-3 rounded-lg shadow-sm border border-red-100"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.3 }}
             >
               <p className="text-sm font-medium">
                 {error}
@@ -252,9 +279,10 @@ export default function Home() {
             </motion.div>
           )}
         </AnimatePresence>
-
-
       </div>
+
+
+
 
     </main>
   );

@@ -641,7 +641,7 @@ export default function DashboardPage({
                       </div>
                     </div>
                       <ul className="space-y-2">
-                        {insights.atsIssues.map((issue, i) => (
+                        {insights.atsIssues?.map((issue, i) => (
                           <li key={i} className="flex items-start gap-2.5">
                             <div className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: "#6366f1" }} />
                             <span className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>{issue}</span>
@@ -662,7 +662,7 @@ export default function DashboardPage({
                       </div>
                     </div>
                       <ul className="space-y-2">
-                        {insights.formatIssues.map((issue, i) => (
+                        {insights.formatIssues?.map((issue, i) => (
                           <li key={i} className="flex items-start gap-2.5">
                             <div className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: "#0d9488" }} />
                             <span className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>{issue}</span>
