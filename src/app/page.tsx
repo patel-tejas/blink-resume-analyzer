@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import FileUpload from "@/components/FileUpload";
+import FloatingLogos from "@/components/FloatingLogos";
 import ProgressStepper from "@/components/ProgressStepper";
 import type { ProgressStep, ParseResponse, GitHubData, AIInsights, ResumeResult } from "@/lib/types";
 import { classifyResume } from "@/lib/classifyResume";
@@ -179,6 +180,9 @@ export default function Home() {
     >
       {/* Deep gradient overlay to fade clouds perfectly into background color */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent from-[10%] via-[#f8f9fa]/80 via-[38%] to-[#f8f9fa] to-[55%] pointer-events-none z-0"></div>
+
+      {/* Floating company logo pills in the bottom gradient zone */}
+      <FloatingLogos />
 
       <div className="relative z-10 w-full max-w-5xl mx-auto px-6 pt-4 flex flex-col items-center">
 
