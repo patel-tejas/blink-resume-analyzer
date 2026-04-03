@@ -204,7 +204,7 @@ export default function Home() {
 
           {/* Overlapping Hero Text - Positioned at bottom of image with solid gradient behind it */}
           <motion.div
-            className="relative bottom-4 md:bottom-12 text-center z-20 w-[120%] bg-gradient-to-t from-[#f8f9fa] via-[#f8f9fa]/90 to-transparent pt-5 pb-24 mb-10"
+            className="relative bottom-4 md:bottom-12 text-center z-20 w-[120%]  to-transparent pt-4 pb-16 mb-8"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
@@ -218,7 +218,12 @@ export default function Home() {
                 <span className="text-blue-600 italic font-normal">actually</span> say about You?
               </h1>
 
-
+              <p 
+                className="mt-4 text-lg md:text-xl text-slate-400 font-medium tracking-tight"
+                style={{ fontFamily: "var(--font-instrument)" }}
+              >
+                Analyze your resume for free
+              </p>
             </div>
           </motion.div>
         </div>
