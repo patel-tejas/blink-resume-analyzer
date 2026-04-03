@@ -172,14 +172,14 @@ export default function Home() {
     <main
       className="flex-1 flex flex-col items-center justify-center min-h-screen relative overflow-hidden"
       style={{
-        backgroundImage: 'url("/swiss kid day.webp")',
+        backgroundImage: 'url("/hero-bg.png")',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
       }}
     >
       {/* Deep gradient overlay to fade clouds perfectly into background color */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent from-[10%] via-[#f8f9fa]/80 via-[38%] to-[#f8f9fa] to-[55%] pointer-events-none z-0"></div>
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent from-[10%] via-[#f8f9fa]/80 via-[70%] to-[#f8f9fa] to-[100%] pointer-events-none z-0"></div>
 
       {/* Floating company logo pills in the bottom gradient zone */}
       <FloatingLogos />
