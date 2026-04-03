@@ -172,7 +172,7 @@ export default function Home() {
     <main
       className="flex-1 flex flex-col items-center justify-center min-h-screen relative overflow-hidden"
       style={{
-        backgroundImage: 'url("/hero-bg.png")',
+        backgroundImage: 'url("/hero-bg.webp")',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
