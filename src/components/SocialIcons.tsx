@@ -60,6 +60,30 @@ export function LinkIcon({ size = 18, className = "", color = "currentColor" }: 
   );
 }
 
+export function MediumIcon({ size = 18, className = "", color = "currentColor" }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={color} className={className}>
+      <path d="M13.54 12a10.8 10.8 0 01-6.77 12A10.8 10.8 0 010 12 10.8 10.8 0 016.77 0 10.8 10.8 0 0113.54 12zM20.96 12a10.8 10.8 0 01-3.23 7.78 10.8 10.8 0 01-3.23-15.56 10.8 10.8 0 013.23 7.78zM24 12a10.8 10.8 0 01-1.22 5.12 10.8 10.8 0 010-10.24 10.8 10.8 0 011.22 5.12z" />
+    </svg>
+  );
+}
+
+export function LeetCodeIcon({ size = 18, className = "", color = "currentColor" }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={color} className={className}>
+      <path d="M13.483 0a1.374 1.374 0 00-.961.438L7.116 6.226c-1.283 1.28-1.283 3.363 0 4.643l4.281 4.281h3.393l-5.76-5.763a1.212 1.212 0 010-1.714l5.131-5.133a1.212 1.212 0 011.714 0l1.714 1.715-1.713 1.713c-.067.067-.144.116-.226.155a1.212 1.212 0 01-1.488-.155l-1.714-1.715a.401.401 0 00-.57 0l-5.133 5.133a.401.401 0 000 .57l5.763 5.76a1.212 1.212 0 010 1.714L10.37 24h3.393l5.403-5.403c1.28-1.28 1.28-3.363 0-4.643L13.483 0z" />
+    </svg>
+  );
+}
+
+export function CodeforcesIcon({ size = 18, className = "", color = "currentColor" }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={color} className={className}>
+      <path d="M4.5 7.5h3v13.5h-3V7.5zM10.5 3h3v18h-3V3zM16.5 10.5h3v10.5h-3V10.5z" />
+    </svg>
+  );
+}
+
 interface LinkIconInfo {
   icon: ReactNode;
   label: string;
@@ -74,6 +98,15 @@ export function getLinkIcon(url: string, size = 16): LinkIconInfo {
   }
   if (lower.includes("linkedin.com")) {
     return { icon: <LinkedInIcon size={size} color="#0A66C2" />, label: "LinkedIn", brandColor: "#0A66C2" };
+  }
+  if (lower.includes("leetcode.com")) {
+    return { icon: <LeetCodeIcon size={size} color="#FFA116" />, label: "LeetCode", brandColor: "#FFA116" };
+  }
+  if (lower.includes("codeforces.com")) {
+    return { icon: <CodeforcesIcon size={size} color="#1C335A" />, label: "Codeforces", brandColor: "#1C335A" };
+  }
+  if (lower.includes("medium.com")) {
+    return { icon: <MediumIcon size={size} color="#000000" />, label: "Medium", brandColor: "#000000" };
   }
   if (lower.includes("twitter.com") || lower.includes("x.com")) {
     return { icon: <TwitterXIcon size={size} color="#1D1D1F" />, label: "X / Twitter", brandColor: "#1D1D1F" };

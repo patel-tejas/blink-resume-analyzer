@@ -11,6 +11,7 @@ import {
   AlertTriangle,
   FileText,
   ChevronDown,
+  Download,
   X,
   Eye,
   GraduationCap,
@@ -32,9 +33,92 @@ import GitHubCard from "@/components/GitHubCard";
 import {
   GitHubIcon,
   LinkedInIcon,
+  LeetCodeIcon,
+  CodeforcesIcon,
   getLinkIcon,
 } from "@/components/SocialIcons";
-import type { ResumeResult, Education, Experience, Project, Achievement } from "@/lib/types";
+import type { ResumeResult, Education, Experience, Project, Achievement, SocialEnrichment } from "@/lib/types";
+
+// ── Additional Social Cards ──
+
+function LeetCodeCard({ data }: { data: NonNullable<NonNullable<SocialEnrichment>['leetcode']> }) {
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(255, 161, 22, 0.1)" }}>
+            <LeetCodeIcon size={20} color="#FFA116" />
+          </div>
+          <div>
+            <p className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>{data.username}</p>
+            <p className="text-[10px] font-medium uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>LeetCode Profile</p>
+          </div>
+        </div>
+        <div className="text-right">
+          <p className="text-xs font-bold" style={{ color: "var(--text-primary)" }}>Rank #{data.ranking.toLocaleString()}</p>
+          <p className="text-[10px]" style={{ color: "#FFA116" }}>Global Ranking</p>
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div className="p-3 rounded-xl border border-gray-100 bg-gray-50/50">
+          <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: "var(--text-muted)" }}>Solved</p>
+          <p className="text-lg font-serif" style={{ color: "var(--text-primary)" }}>{data.resolved}</p>
+        </div>
+        <div className="p-3 rounded-xl border border-gray-100 bg-gray-50/50">
+          <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: "var(--text-muted)" }}>Acceptance</p>
+          <p className="text-lg font-serif" style={{ color: "var(--text-primary)" }}>{data.acceptance}%</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CodeforcesCard({ data }: { data: NonNullable<NonNullable<SocialEnrichment>['codeforces']> }) {
+  const getRankColor = (rank: string) => {
+    const r = rank.toLowerCase();
+    if (r.includes("grandmaster")) return "#ff0000";
+    if (r.includes("master")) return "#ff8c00";
+    if (r.includes("candidate")) return "#aa00aa";
+    if (r.includes("expert")) return "#0000ff";
+    if (r.includes("specialist")) return "#03a89e";
+    if (r.includes("pupil")) return "#008000";
+    return "#808080";
+  };
+
+  const rankColor = getRankColor(data.rank);
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(28, 51, 90, 0.05)" }}>
+            <CodeforcesIcon size={22} color="#1C335A" />
+          </div>
+          <div>
+            <p className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>{data.username}</p>
+            <p className="text-[10px] font-medium uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Codeforces Profile</p>
+          </div>
+        </div>
+        <div className="text-right">
+          <p className="text-xs font-bold" style={{ color: rankColor }}>{data.rank.toUpperCase()}</p>
+          <p className="text-[10px]" style={{ color: "var(--text-muted)" }}>Current Rank</p>
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div className="p-3 rounded-xl border border-gray-100 bg-gray-50/50">
+          <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: "var(--text-muted)" }}>Rating</p>
+          <p className="text-lg font-serif" style={{ color: rankColor }}>{data.rating}</p>
+        </div>
+        <div className="p-3 rounded-xl border border-gray-100 bg-gray-50/50">
+          <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: "var(--text-muted)" }}>Max Rating</p>
+          <p className="text-lg font-serif" style={{ color: getRankColor(data.maxRank) }}>{data.maxRating}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function DashboardPage({
   params,
@@ -260,43 +344,45 @@ export default function DashboardPage({
               )}
 
               {/* Score + Summary row */}
-              <div className="flex flex-col sm:flex-row items-center gap-8">
+              <div className="flex flex-col md:flex-row gap-10 items-start">
                 {insights && !insights.error && (
-                  <div className="shrink-0">
-                    <ScoreBadge score={insights.score} size={150} />
+                  <div className="shrink-0 flex flex-col items-center gap-2">
+                    <ScoreBadge score={insights.score} size={130} />
                   </div>
                 )}
-                <div className="flex-1 text-center sm:text-left">
-                  <h1 className="text-2xl sm:text-3xl mb-3" style={{ fontFamily: "var(--font-serif)" }}>
-                    Resume Verdict
-                  </h1>
-                  {insights && !insights.error && (
-                    <>
-                      <div className="flex flex-wrap items-center gap-2 mb-3 justify-center sm:justify-start">
-                        <span className="px-3 py-1 rounded-full text-xs font-medium" style={{ background: "var(--accent-dim)", color: "var(--accent)", border: "1px solid rgba(37, 99, 235, 0.15)" }}>
-                          {insights.experienceLevel}
+                <div className="flex-1 pt-2">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                    <div>
+                      <h1 className="text-3xl font-normal mb-1" style={{ fontFamily: "var(--font-serif-art)" }}>
+                        Resume Verdict
+                      </h1>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded bg-black/5 text-gray-500">
+                          {insights?.experienceLevel}
                         </span>
                         {parseData.githubUsername && (
-                          <span className="px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5" style={{ background: "rgba(0,0,0,0.04)", color: "var(--text-secondary)" }}>
-                            <GitHubIcon size={12} color="var(--text-secondary)" />
-                            {parseData.githubUsername}
-                          </span>
-                        )}
-                        {parseData.linkedinUsername && (
-                          <span className="px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5" style={{ background: "rgba(10, 102, 194, 0.06)", color: "#0A66C2" }}>
-                            <LinkedInIcon size={12} color="#0A66C2" />
-                            {parseData.linkedinUsername}
+                          <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded bg-black/5 text-gray-500">
+                            GitHub Active
                           </span>
                         )}
                       </div>
-                      <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-                        {insights.ceoSummary}
-                      </p>
-                    </>
-                  )}
-                  {(!insights || insights.error) && (
-                    <p className="text-sm" style={{ color: "var(--text-muted)" }}>AI insights unavailable.</p>
-                  )}
+                    </div>
+                    
+                    {/* Secondary Metrics or Status */}
+                    <div className="flex items-center gap-6 sm:border-l sm:pl-6 border-gray-100">
+                      <div>
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">ATS Readiness</p>
+                        <p className="text-sm font-medium text-gray-700">Excellent compatibility</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-5 rounded-2xl bg-black/1.5 border border-black/3 relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-1 h-full bg-accent opacity-20" />
+                    <p className="text-sm leading-relaxed text-gray-600 italic">
+                      "{insights?.ceoSummary}"
+                    </p>
+                  </div>
                 </div>
               </div>
             </motion.section>
@@ -326,14 +412,14 @@ export default function DashboardPage({
                               )}
                             </div>
                             <p className="text-sm mt-0.5" style={{ color: "var(--text-secondary)" }}>{edu.degree}</p>
-                            <div className="flex items-center gap-3 mt-1">
-                              <span className="text-xs" style={{ color: "var(--text-muted)" }}>{edu.year}</span>
-                              {edu.gpa && <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ background: "var(--success-dim)", color: "var(--success)" }}>GPA: {edu.gpa}</span>}
+                            <div className="flex items-center gap-3 mt-1.5">
+                              <span className="text-sm" style={{ color: "var(--text-muted)" }}>{edu.year}</span>
+                              {edu.gpa && <span className="text-sm font-medium px-2 py-0.5 rounded-full" style={{ background: "var(--success-dim)", color: "var(--success)" }}>GPA: {edu.gpa}</span>}
                             </div>
                           </div>
                         </div>
                         {edu.highlight && (
-                          <p className="text-xs mt-2 italic" style={{ color: "#7c3aed" }}>✦ {edu.highlight}</p>
+                          <p className="text-sm mt-2 italic" style={{ color: "#7c3aed" }}>✦ {edu.highlight}</p>
                         )}
                       </div>
                     ))}
@@ -365,18 +451,18 @@ export default function DashboardPage({
                               )}
                             </div>
                             <p className="text-sm" style={{ color: "var(--accent)" }}>{exp.company}</p>
-                            <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>{exp.duration}</p>
+                            <p className="text-sm mt-0.5" style={{ color: "var(--text-muted)" }}>{exp.duration}</p>
                           </div>
                         </div>
                         {exp.notableReason && (
-                          <p className="text-xs mt-1.5 italic" style={{ color: "#0891b2" }}>✦ {exp.notableReason}</p>
+                          <p className="text-sm mt-2 italic" style={{ color: "#0891b2" }}>✦ {exp.notableReason}</p>
                         )}
                         {exp.highlights.length > 0 && (
                           <ul className="mt-2 space-y-1">
                             {exp.highlights.map((h, j) => (
                               <li key={j} className="flex items-start gap-2">
                                 <div className="w-1 h-1 rounded-full mt-1.5 shrink-0" style={{ background: "var(--text-muted)" }} />
-                                <span className="text-xs leading-relaxed" style={{ color: "var(--text-secondary)" }}>{h}</span>
+                                <span className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>{h}</span>
                               </li>
                             ))}
                           </ul>
@@ -407,15 +493,20 @@ export default function DashboardPage({
                               Impressive
                             </span>
                           )}
+                          {proj.hasLink && (
+                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-blue-50 text-blue-600 border border-blue-100 font-bold uppercase tracking-tighter">
+                              Live / Repo
+                            </span>
+                          )}
                         </div>
-                        <p className="text-xs mt-1 leading-relaxed" style={{ color: "var(--text-secondary)" }}>{proj.description}</p>
+                        <p className="text-sm mt-1 leading-relaxed" style={{ color: "var(--text-secondary)" }}>{proj.description}</p>
                         {proj.impressiveReason && (
-                          <p className="text-xs mt-1 italic" style={{ color: "#ea580c" }}>✦ {proj.impressiveReason}</p>
+                          <p className="text-sm mt-1.5 italic" style={{ color: "#ea580c" }}>✦ {proj.impressiveReason}</p>
                         )}
                         {proj.techStack.length > 0 && (
                           <div className="flex flex-wrap gap-1.5 mt-2">
                             {proj.techStack.map((t, j) => (
-                              <span key={j} className="text-[10px] px-2 py-0.5 rounded-full font-medium" style={{ background: "rgba(0,0,0,0.05)", color: "var(--text-secondary)" }}>{t}</span>
+                              <span key={j} className="text-[11px] px-2 py-0.5 rounded-full font-medium" style={{ background: "rgba(0,0,0,0.05)", color: "var(--text-secondary)" }}>{t}</span>
                             ))}
                           </div>
                         )}
@@ -450,8 +541,15 @@ export default function DashboardPage({
                         </div>
                         <div>
                           <p className="text-sm" style={{ color: "var(--text-primary)" }}>{ach.title}</p>
+                          {ach.statisticQuote && (
+                            <div className="mt-1.5 flex items-center gap-1.5">
+                              <span className="text-xs px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 font-bold border border-amber-100">
+                                {ach.statisticQuote}
+                              </span>
+                            </div>
+                          )}
                           {ach.exceptionalReason && (
-                            <p className="text-xs mt-0.5 italic" style={{ color: "#d97706" }}>✦ {ach.exceptionalReason}</p>
+                            <p className="text-sm mt-1.5 italic" style={{ color: "#d97706" }}>✦ {ach.exceptionalReason}</p>
                           )}
                         </div>
                       </div>
@@ -469,8 +567,21 @@ export default function DashboardPage({
                 </InsightCard>
                 <InsightCard icon={<Sparkles size={18} style={{ color: "var(--accent)" }} />} title="Detected Skills" delay={0.35}>
                   <div className="flex flex-wrap gap-2">
-                    {insights.skills.map((skill) => (<span key={skill} className="tag-pill">{skill}</span>))}
+                    {insights.skills.all.map((skill: string) => (<span key={skill} className="tag-pill">{skill}</span>))}
                   </div>
+                  {insights.skills.missingCommonSkills.length > 0 && (
+                    <div className="mt-4 p-3 rounded-xl bg-orange-50/50 border border-orange-100/50">
+                      <p className="text-xs font-bold text-orange-600 uppercase tracking-widest mb-2">Recommended Additions</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {insights.skills.missingCommonSkills.map((ms: string, mi: number) => (
+                          <span key={mi} className="text-xs px-2 py-0.5 rounded bg-white text-orange-700 border border-orange-200">
+                            + {ms}
+                          </span>
+                        ))}
+                      </div>
+                      <p className="text-[10px] mt-2 text-orange-600/70 italic">{insights.skills.note}</p>
+                    </div>
+                  )}
                   {/* Certifications inline */}
                   {insights.certifications && insights.certifications.length > 0 && (
                     <div className="mt-4 pt-3" style={{ borderTop: "1px solid var(--border-subtle)" }}>
@@ -520,48 +631,44 @@ export default function DashboardPage({
               <motion.section className={`grid grid-cols-1 ${showPdf && pdfDataUrl ? '' : 'lg:grid-cols-2'} gap-5 mb-8`} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
                 {insights.atsScore !== undefined && (
                   <InsightCard icon={<ShieldCheck size={18} style={{ color: "#6366f1" }} />} title="ATS Compatibility" delay={0.5}>
-                    <div className="flex items-center gap-4 mb-3">
-                      <ScoreBadge score={insights.atsScore} size={80} />
+                    <div className="flex items-center gap-4 mb-4">
+                      <ScoreBadge score={insights.atsScore} size={90} />
                       <div>
-                        <p className="text-xs font-medium" style={{ color: "var(--text-muted)" }}>ATS Ready Score</p>
-                        <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+                        <p className="text-sm font-bold uppercase tracking-wider mb-1" style={{ color: "var(--text-muted)" }}>ATS Ready Score</p>
+                        <p className="text-base font-medium" style={{ color: "var(--text-secondary)" }}>
                           {insights.atsScore >= 80 ? "Excellent ATS compatibility" : insights.atsScore >= 60 ? "Good but room for improvement" : "Needs significant improvement"}
                         </p>
                       </div>
                     </div>
-                    {insights.atsIssues && insights.atsIssues.length > 0 && (
-                      <ul className="space-y-1.5">
+                      <ul className="space-y-2">
                         {insights.atsIssues.map((issue, i) => (
-                          <li key={i} className="flex items-start gap-2">
-                            <div className="w-1 h-1 rounded-full mt-1.5 shrink-0" style={{ background: "#6366f1" }} />
-                            <span className="text-xs leading-relaxed" style={{ color: "var(--text-secondary)" }}>{issue}</span>
+                          <li key={i} className="flex items-start gap-2.5">
+                            <div className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: "#6366f1" }} />
+                            <span className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>{issue}</span>
                           </li>
                         ))}
                       </ul>
-                    )}
                   </InsightCard>
                 )}
                 {insights.formatScore !== undefined && (
                   <InsightCard icon={<FileCheck size={18} style={{ color: "#0d9488" }} />} title="Format Quality" delay={0.55}>
-                    <div className="flex items-center gap-4 mb-3">
-                      <ScoreBadge score={insights.formatScore} size={80} />
+                    <div className="flex items-center gap-4 mb-4">
+                      <ScoreBadge score={insights.formatScore} size={90} />
                       <div>
-                        <p className="text-xs font-medium" style={{ color: "var(--text-muted)" }}>Format Score</p>
-                        <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+                        <p className="text-sm font-bold uppercase tracking-wider mb-1" style={{ color: "var(--text-muted)" }}>Format Score</p>
+                        <p className="text-base font-medium" style={{ color: "var(--text-secondary)" }}>
                           {insights.formatScore >= 80 ? "Clean, professional formatting" : insights.formatScore >= 60 ? "Decent formatting with minor issues" : "Formatting needs work"}
                         </p>
                       </div>
                     </div>
-                    {insights.formatIssues && insights.formatIssues.length > 0 && (
-                      <ul className="space-y-1.5">
+                      <ul className="space-y-2">
                         {insights.formatIssues.map((issue, i) => (
-                          <li key={i} className="flex items-start gap-2">
-                            <div className="w-1 h-1 rounded-full mt-1.5 shrink-0" style={{ background: "#0d9488" }} />
-                            <span className="text-xs leading-relaxed" style={{ color: "var(--text-secondary)" }}>{issue}</span>
+                          <li key={i} className="flex items-start gap-2.5">
+                            <div className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: "#0d9488" }} />
+                            <span className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>{issue}</span>
                           </li>
                         ))}
                       </ul>
-                    )}
                   </InsightCard>
                 )}
               </motion.section>
@@ -576,35 +683,73 @@ export default function DashboardPage({
               </section>
             )}
 
+            {/* ── LeetCode Card ── */}
+            {(() => {
+              const lc = insights?.socialEnrichment?.leetcode;
+              if (!lc) return null;
+              return (
+                <section className="mb-8">
+                  <InsightCard icon={<LeetCodeIcon size={18} color="#FFA116" />} title="LeetCode Forensic" delay={0.62}>
+                    <LeetCodeCard data={lc} />
+                  </InsightCard>
+                </section>
+              );
+            })()}
+
+            {/* ── Codeforces Card ── */}
+            {(() => {
+              const cf = insights?.socialEnrichment?.codeforces;
+              if (!cf) return null;
+              return (
+                <section className="mb-8">
+                  <InsightCard icon={<CodeforcesIcon size={18} color="#1C335A" />} title="Codeforces Forensic" delay={0.64}>
+                    <CodeforcesCard data={cf} />
+                  </InsightCard>
+                </section>
+              );
+            })()}
+
             {/* ── Extracted Links ── */}
-            {parseData.portfolioLinks && parseData.portfolioLinks.length > 0 && (
+            {parseData.portfolioLinks && parseData.portfolioLinks.filter(link => {
+              const lower = link.toLowerCase();
+              return !lower.includes("github.com") && 
+                     !lower.includes("leetcode.com") && 
+                     !lower.includes("codeforces.com");
+            }).length > 0 && (
               <section className="mb-8">
                 <InsightCard icon={<Sparkles size={18} style={{ color: "var(--text-muted)" }} />} title="Extracted Links" delay={0.65}>
                   <div className="flex flex-col gap-2">
-                    {parseData.portfolioLinks.map((link, idx) => {
-                      const { icon, label } = getLinkIcon(link);
-                      return (
-                        <a key={idx} href={link} target="_blank" rel="noopener noreferrer"
-                          className="text-sm font-medium transition-all p-3 rounded-xl flex items-center gap-3"
-                          style={{ color: "var(--text-primary)", border: "1px solid var(--border-subtle)" }}
-                          onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--border-hover)"; e.currentTarget.style.background = "rgba(0,0,0,0.02)"; }}
-                          onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border-subtle)"; e.currentTarget.style.background = "transparent"; }}
-                        >
-                          <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: "rgba(0,0,0,0.04)" }}>{icon}</div>
-                          <div className="min-w-0 flex-1">
-                            <p className="text-xs font-medium" style={{ color: "var(--text-muted)" }}>{label}</p>
-                            <p className="text-sm truncate" style={{ color: "var(--accent)" }}>{link}</p>
-                          </div>
-                        </a>
-                      );
-                    })}
+                    {parseData.portfolioLinks
+                      .filter(link => {
+                        const lower = link.toLowerCase();
+                        return !lower.includes("github.com") && 
+                               !lower.includes("leetcode.com") && 
+                               !lower.includes("codeforces.com");
+                      })
+                      .map((link, idx) => {
+                        const { icon, label } = getLinkIcon(link);
+                        return (
+                          <a key={idx} href={link} target="_blank" rel="noopener noreferrer"
+                            className="text-sm font-medium transition-all p-3 rounded-xl flex items-center gap-3"
+                            style={{ color: "var(--text-primary)", border: "1px solid var(--border-subtle)" }}
+                            onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--border-hover)"; e.currentTarget.style.background = "rgba(0,0,0,0.02)"; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border-subtle)"; e.currentTarget.style.background = "transparent"; }}
+                          >
+                            <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: "rgba(0,0,0,0.04)" }}>{icon}</div>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-xs font-medium" style={{ color: "var(--text-muted)" }}>{label}</p>
+                              <p className="text-sm truncate" style={{ color: "var(--accent)" }}>{link}</p>
+                            </div>
+                          </a>
+                        );
+                      })}
                   </div>
                 </InsightCard>
               </section>
             )}
 
-            {/* ── Raw Text fallback ── */}
-            {!pdfDataUrl && <RawTextSection text={parseData.text} />}
+            {/* ── Raw Data Export ── */}
+            <RawDataExportSection result={result} />
 
             <div className="h-8" />
           </div>
@@ -640,26 +785,61 @@ export default function DashboardPage({
   );
 }
 
-/* ── Raw Text Sub-component ── */
-function RawTextSection({ text }: { text: string }) {
+/* ── Raw Data Export Sub-component ── */
+function RawDataExportSection({ result }: { result: ResumeResult }) {
   const [show, setShow] = useState(false);
+  
+  const rawData = {
+    extractedText: result.parseData.text,
+    links: {
+      github: result.parseData.githubUrl,
+      linkedin: result.parseData.linkedinUsername,
+      leetcode: result.parseData.leetcodeUsername,
+      codeforces: result.parseData.codeforcesUsername,
+      medium: result.parseData.mediumUsername,
+      portfolio: result.parseData.portfolioLinks,
+    },
+    aiInsights: result.insights,
+  };
+
+  const downloadJson = () => {
+    const jsonString = JSON.stringify(rawData, null, 2);
+    const blob = new Blob([jsonString], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "resume_analysis.json";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <section className="mb-8">
-      <InsightCard icon={<FileText size={18} style={{ color: "var(--text-muted)" }} />} title="Extracted Text" delay={0.7}>
-        <button onClick={() => setShow(!show)} className="flex items-center gap-2 text-sm transition-colors mb-3" style={{ color: "var(--text-muted)" }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = "var(--text-primary)")}
-          onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}
-        >
-          <ChevronDown size={16} className="transition-transform" style={{ transform: show ? "rotate(180deg)" : "rotate(0deg)" }} />
-          {show ? "Hide" : "Show"} extracted text
-        </button>
+      <InsightCard icon={<FileText size={18} style={{ color: "var(--text-muted)" }} />} title="Raw Data & Export" delay={0.7}>
+        <div className="flex items-center justify-between mb-3">
+          <button onClick={() => setShow(!show)} className="flex items-center gap-2 text-sm transition-colors" style={{ color: "var(--text-muted)" }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--text-primary)")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}
+          >
+            <ChevronDown size={16} className="transition-transform" style={{ transform: show ? "rotate(180deg)" : "rotate(0deg)" }} />
+            {show ? "Hide" : "Show"} raw JSON payload
+          </button>
+          
+          <button onClick={downloadJson} className="flex items-center gap-2 text-xs font-semibold px-4 py-2 rounded-lg transition-colors bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-100">
+            <Download size={14} />
+            Export JSON
+          </button>
+        </div>
+
         <AnimatePresence>
           {show && (
-            <motion.pre className="text-xs leading-relaxed whitespace-pre-wrap p-4 rounded-xl overflow-auto max-h-96"
+            <motion.pre className="text-[10px] leading-relaxed whitespace-pre-wrap p-4 rounded-xl overflow-auto max-h-96"
               style={{ color: "var(--text-secondary)", background: "rgba(0,0,0,0.02)", border: "1px solid var(--border-subtle)" }}
               initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3 }}
             >
-              {text}
+              {JSON.stringify(rawData, null, 2)}
             </motion.pre>
           )}
         </AnimatePresence>

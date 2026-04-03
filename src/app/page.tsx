@@ -6,11 +6,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import FileUpload from "@/components/FileUpload";
 import ProgressStepper from "@/components/ProgressStepper";
 import type { ProgressStep, ParseResponse, GitHubData, AIInsights, ResumeResult } from "@/lib/types";
+import { classifyResume } from "@/lib/classifyResume";
 
 const INITIAL_STEPS: ProgressStep[] = [
   { id: "upload", label: "Upload", status: "pending" },
   { id: "parse", label: "Parse PDF", status: "pending" },
-  { id: "github", label: "GitHub", status: "pending" },
+  { id: "github", label: "Extracting Links", status: "pending" },
   { id: "ai", label: "AI Analysis", status: "pending" },
   { id: "done", label: "Done", status: "pending" },
 ];
@@ -75,31 +76,33 @@ export default function Home() {
             : "No GitHub found",
         });
 
-        // Step 3: GitHub enrichment
-        if (parseData.githubUsername) {
-          updateStep("github", { status: "active", detail: "Fetching profile..." });
-
+        // Step 3: Links and GitHub enrichment
+        const category = classifyResume(parseData.text);
+        
+        updateStep("github", { status: "active", detail: "Scanning links..." });
+        
+        if (parseData.githubUsername && category === "technical") {
           try {
             const ghRes = await fetch(
               `/api/enrich/github?username=${encodeURIComponent(parseData.githubUsername)}`
             );
             const ghData = await ghRes.json();
 
-            if (ghData.error) {
-              updateStep("github", { status: "error", detail: ghData.message });
-            } else {
+            if (!ghData.error) {
               githubData = ghData as GitHubData;
-              updateStep("github", {
-                status: "done",
-                detail: `${ghData.publicRepos} repos`,
-              });
             }
           } catch {
-            updateStep("github", { status: "error", detail: "API unavailable" });
+            // Silently fail GitHub API but still mark the Links step as done
           }
         } else {
-          updateStep("github", { status: "skipped", detail: "No link found" });
+          // Artificial delay for UI consistency when no API call is made
+          await new Promise((r) => setTimeout(r, 600));
         }
+        
+        updateStep("github", {
+          status: "done",
+          detail: "Links extracted"
+        });
 
         // Step 4: AI Insights
         updateStep("ai", { status: "active", detail: "Analyzing with Gemini..." });
@@ -111,6 +114,8 @@ export default function Home() {
             body: JSON.stringify({
               resumeText: parseData.text,
               githubData: githubData,
+              leetcodeUsername: parseData.leetcodeUsername,
+              codeforcesUsername: parseData.codeforcesUsername,
             }),
           });
 
@@ -182,8 +187,8 @@ export default function Home() {
               className="text-4xl md:text-5xl lg:text-[4.5rem] leading-[1.05] text-slate-800 tracking-tight font-normal"
               style={{ fontFamily: "var(--font-instrument)" }}
             >
-              What does your resume <br />
-              <span className="text-blue-600 italic font-normal">actually</span> say about you?
+              What does your Resume <br />
+              <span className="text-blue-600 italic font-normal">actually</span> say about You?
             </h1>
 
             <p className="mt-5 text-base md:text-lg text-slate-800 font-medium max-w-lg mx-auto drop-shadow-sm">

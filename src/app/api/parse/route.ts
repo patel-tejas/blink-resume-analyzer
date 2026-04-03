@@ -77,6 +77,9 @@ export async function POST(request: Request) {
 
     let githubMatch: string | null = null;
     let linkedinMatch: string | null = null;
+    let leetcodeMatch: string | null = null;
+    let codeforcesMatch: string | null = null;
+    let mediumMatch: string | null = null;
     const portfolioLinks: string[] = [];
 
     // Categorize Links
@@ -93,6 +96,21 @@ export async function POST(request: Request) {
         const match = url.match(/linkedin\.com\/in\/([a-zA-Z0-9_-]+)/i);
         if (match && !linkedinMatch) linkedinMatch = match[1];
       } 
+      // Match LeetCode
+      else if (lowerUrl.includes("leetcode.com/")) {
+        const match = url.match(/leetcode\.com\/u\/([a-zA-Z0-9_-]+)/i) || url.match(/leetcode\.com\/([a-zA-Z0-9_-]+)/i);
+        if (match && !leetcodeMatch) leetcodeMatch = match[1];
+      }
+      // Match Codeforces
+      else if (lowerUrl.includes("codeforces.com/profile/")) {
+        const match = url.match(/codeforces\.com\/profile\/([a-zA-Z0-9_-]+)/i);
+        if (match && !codeforcesMatch) codeforcesMatch = match[1];
+      }
+      // Match Medium
+      else if (lowerUrl.includes("medium.com/@")) {
+        const match = url.match(/medium\.com\/@([a-zA-Z0-9_-]+)/i);
+        if (match && !mediumMatch) mediumMatch = match[1];
+      }
       // Other Links
       else {
         portfolioLinks.push(url);
@@ -107,6 +125,9 @@ export async function POST(request: Request) {
       githubUrl: githubMatch ? `https://github.com/${githubMatch}` : null,
       githubUsername: githubMatch || null,
       linkedinUsername: linkedinMatch || null,
+      leetcodeUsername: leetcodeMatch || null,
+      codeforcesUsername: codeforcesMatch || null,
+      mediumUsername: mediumMatch || null,
       portfolioLinks: portfolioLinks.length > 0 ? portfolioLinks : null,
     });
   } catch (error) {

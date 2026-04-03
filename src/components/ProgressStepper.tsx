@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Upload, FileSearch, Code2, Brain, CheckCircle2 } from "lucide-react";
+import { Upload, FileSearch, Link2, Brain, CheckCircle2 } from "lucide-react";
 import type { ProgressStep as Step } from "@/lib/types";
 
 interface ProgressStepperProps {
@@ -11,7 +11,7 @@ interface ProgressStepperProps {
 const STEP_ICONS: Record<string, React.ElementType> = {
   upload: Upload,
   parse: FileSearch,
-  github: Code2,
+  github: Link2,
   ai: Brain,
   done: CheckCircle2,
 };
@@ -74,11 +74,18 @@ export default function ProgressStepper({ steps }: ProgressStepperProps) {
 
               {/* Step circle */}
               <motion.div
-                className={`relative z-20 w-10 h-10 rounded-full border-2 flex items-center justify-center ${styles.dot} ${
+                transition={{ 
+                  type: "spring",
+                  stiffness: 300,
+                  damping: 20
+                }}
+                whileHover={{ scale: 1.15, rotate: 5 }}
+                whileTap={{ scale: 0.95 }}
+                className={`relative z-20 w-10 h-10 rounded-full border-2 flex items-center justify-center cursor-pointer ${styles.dot} ${
                   step.status === "active" ? "pulse-active" : ""
                 }`}
                 style={{
-                  backgroundColor: "#ffffff", // Pure solid white mask
+                  backgroundColor: "#ffffff",
                   boxShadow: step.status === "active" ? "0 0 0 2px var(--accent-dim)" : "none",
                 }}
                 initial={{ scale: 0.95, opacity: 1 }}
@@ -86,25 +93,25 @@ export default function ProgressStepper({ steps }: ProgressStepperProps) {
                   scale: step.status === "active" ? 1.1 : 1,
                   opacity: 1 
                 }}
-                transition={{ 
-                  type: "spring",
-                  stiffness: 300,
-                  damping: 20
-                }}
               >
-                <Icon
-                  size={18}
-                  style={{
-                    color:
-                      step.status === "active"
-                        ? "var(--accent)"
-                        : step.status === "done"
-                        ? "var(--success)"
-                        : step.status === "error"
-                        ? "var(--error)"
-                        : "#cbd5e1", // Slightly darker pending grey
-                  }}
-                />
+                <motion.div
+                  animate={step.status === "active" ? { rotateY: 360 } : { rotateY: 0 }}
+                  transition={step.status === "active" ? { duration: 1.5, repeat: Infinity, ease: "linear" } : {}}
+                >
+                  <Icon
+                    size={18}
+                    style={{
+                      color:
+                        step.status === "active"
+                          ? "var(--accent)"
+                          : step.status === "done"
+                          ? "var(--success)"
+                          : step.status === "error"
+                          ? "var(--error)"
+                          : "#cbd5e1", // Slightly darker pending grey
+                    }}
+                  />
+                </motion.div>
               </motion.div>
 
               {/* Label */}

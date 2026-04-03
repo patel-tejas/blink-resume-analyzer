@@ -8,39 +8,33 @@ interface ScoreBadgeProps {
   size?: number;
 }
 
-export default function ScoreBadge({ score, size = 160 }: ScoreBadgeProps) {
+export default function ScoreBadge({ score, size = 180 }: ScoreBadgeProps) {
   const [animatedScore, setAnimatedScore] = useState(0);
-  const radius = (size - 16) / 2;
+  const strokeWidth = 10;
+  const radius = (size - strokeWidth * 2) / 2;
   const circumference = 2 * Math.PI * radius;
+  
+  // Adjusted offset to start from top and animate length
   const progress = (animatedScore / 100) * circumference;
   const offset = circumference - progress;
 
-  const getColor = (s: number) => {
-    if (s >= 75) return "var(--success)";
-    if (s >= 50) return "var(--accent)";
-    if (s >= 30) return "var(--warning)";
-    return "var(--error)";
+  const getHealthColor = (s: number) => {
+    if (s >= 85) return { primary: "#10b981", secondary: "#059669", glow: "rgba(16, 185, 129, 0.3)" }; // Super Green
+    if (s >= 70) return { primary: "#2563eb", secondary: "#1d4ed8", glow: "rgba(37, 99, 235, 0.3)" }; // Professional Blue
+    if (s >= 50) return { primary: "#f59e0b", secondary: "#d97706", glow: "rgba(245, 158, 11, 0.3)" }; // Warning Amber
+    return { primary: "#ef4444", secondary: "#b91c1c", glow: "rgba(239, 68, 68, 0.3)" }; // Error Red
   };
 
-  const getGrade = (s: number) => {
-    if (s >= 90) return "A+";
-    if (s >= 80) return "A";
-    if (s >= 70) return "B+";
-    if (s >= 60) return "B";
-    if (s >= 50) return "C";
-    if (s >= 40) return "D";
-    return "F";
-  };
+  const colors = getHealthColor(score);
 
   useEffect(() => {
-    const duration = 1500;
+    const duration = 2000;
     const startTime = Date.now();
 
     const animate = () => {
       const elapsed = Date.now() - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      // Ease out cubic
-      const eased = 1 - Math.pow(1 - progress, 3);
+      const eased = 1 - Math.pow(1 - progress, 4); // Ease out quartic
       setAnimatedScore(Math.round(score * eased));
 
       if (progress < 1) {
@@ -51,49 +45,94 @@ export default function ScoreBadge({ score, size = 160 }: ScoreBadgeProps) {
     requestAnimationFrame(animate);
   }, [score]);
 
-  const color = getColor(animatedScore);
+  const getGradeDesc = (s: number) => {
+    if (s >= 90) return "Exceptional";
+    if (s >= 80) return "Strong Match";
+    if (s >= 70) return "Good Potential";
+    if (s >= 60) return "Fair Match";
+    if (s >= 50) return "Minimal Match";
+    return "Weak Match";
+  };
 
   return (
-    <div className="relative inline-flex items-center justify-center">
-      <svg width={size} height={size} className="-rotate-90">
-        {/* Background circle */}
+    <div className="relative inline-flex items-center justify-center p-4">
+      {/* Outer shadow/glow container */}
+      <div 
+        className="absolute inset-0 rounded-full blur-[30px] opacity-20 transition-all duration-1000"
+        style={{ background: colors.primary }}
+      />
+      
+      <svg width={size} height={size} className="-rotate-90 drop-shadow-sm">
+        <defs>
+          <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor={colors.primary} />
+            <stop offset="100%" stopColor={colors.secondary} />
+          </linearGradient>
+          
+          <filter id="innerGlow">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="out" />
+          </filter>
+        </defs>
+
+        {/* Track background */}
         <circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          fill="none"
+          fill="rgba(0,0,0,0.03)"
           stroke="rgba(0,0,0,0.05)"
-          strokeWidth={8}
+          strokeWidth={strokeWidth}
         />
-        {/* Progress circle */}
+
+        {/* The Actual Progress Ring */}
         <motion.circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke={color}
-          strokeWidth={8}
+          stroke="url(#scoreGradient)"
+          strokeWidth={strokeWidth}
           strokeLinecap="round"
           strokeDasharray={circumference}
           strokeDashoffset={offset}
-          style={{ filter: `drop-shadow(0 0 8px ${color})` }}
+          initial={{ strokeDashoffset: circumference }}
+          animate={{ strokeDashoffset: offset }}
+          transition={{ duration: 2, ease: "easeOut" }}
+          style={{ 
+            filter: `drop-shadow(0 0 6px ${colors.glow})`
+          }}
         />
       </svg>
 
-      {/* Center text */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span
-          className="text-3xl font-bold tabular-nums"
-          style={{ color, fontFamily: "var(--font-serif)" }}
+      {/* Center content */}
+      <div className="absolute inset-0 flex items-center justify-center text-center">
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.3, duration: 0.8 }}
+          className="flex items-baseline justify-center"
         >
-          {animatedScore}
-        </span>
-        <span
-          className="text-xs font-medium mt-0.5 tracking-wider uppercase"
-          style={{ color: "var(--text-muted)" }}
-        >
-          Grade {getGrade(score)}
-        </span>
+          <span 
+            className="font-normal leading-none"
+            style={{ 
+              color: "var(--text-primary)",
+              fontFamily: "var(--font-serif-art, serif)",
+              fontSize: `${size * 0.35}px`
+            }}
+          >
+            {animatedScore}
+          </span>
+          <span 
+            className="font-light opacity-40 ml-0.5 tracking-tight" 
+            style={{ 
+              fontFamily: "var(--font-sans)",
+              fontSize: `${size * 0.12}px`
+            }}
+          >
+            %
+          </span>
+        </motion.div>
       </div>
     </div>
   );
