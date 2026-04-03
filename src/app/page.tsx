@@ -105,7 +105,7 @@ export default function Home() {
         });
 
         // Step 4: AI Insights
-        updateStep("ai", { status: "active", detail: "Analyzing with Gemini..." });
+        updateStep("ai", { status: "active", detail: "Analyzing with our AI Models" });
 
         try {
           const aiRes = await fetch("/api/insights", {
